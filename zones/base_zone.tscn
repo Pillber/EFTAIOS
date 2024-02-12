@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cv7mriffjkldh"]
+
+[ext_resource type="TileSet" uid="uid://exwr0djr41gc" path="res://zones/game_tile_set.tres" id="1_nonmj"]
+[ext_resource type="Script" path="res://zones/base_zone.gd" id="2_ucqmc"]
+
+[node name="Zone" type="TileMap"]
+tile_set = ExtResource("1_nonmj")
+format = 2
+layer_0/name = "board"
+layer_1/name = "player"
+layer_1/tile_data = PackedInt32Array()
+script = ExtResource("2_ucqmc")

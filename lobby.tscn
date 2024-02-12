@@ -1,0 +1,96 @@
+[gd_scene load_steps=2 format=3 uid="uid://dj28s73p1c8qr"]
+
+[ext_resource type="Script" path="res://lobby.gd" id="1_6jurc"]
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6jurc")
+
+[node name="HostJoin" type="CenterContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HostJoinContainer" type="VBoxContainer" parent="HostJoin"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="HostButton" type="Button" parent="HostJoin/HostJoinContainer"]
+layout_mode = 2
+text = "Host Game"
+
+[node name="LobbyID" type="LineEdit" parent="HostJoin/HostJoinContainer"]
+layout_mode = 2
+placeholder_text = "Lobby ID"
+alignment = 1
+
+[node name="JoinButton" type="Button" parent="HostJoin/HostJoinContainer"]
+layout_mode = 2
+text = "Join Game"
+
+[node name="LobbyMainScreen" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Players" type="VBoxContainer" parent="LobbyMainScreen"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MessagesAndPlayerList" type="HBoxContainer" parent="LobbyMainScreen/Players"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlayerScroll" type="ScrollContainer" parent="LobbyMainScreen/Players/MessagesAndPlayerList"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlayerList" type="VBoxContainer" parent="LobbyMainScreen/Players/MessagesAndPlayerList/PlayerScroll"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MessagesContainer" type="VBoxContainer" parent="LobbyMainScreen/Players/MessagesAndPlayerList"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Messages" type="TextEdit" parent="LobbyMainScreen/Players/MessagesAndPlayerList/MessagesContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+editable = false
+
+[node name="MessageEdit" type="HBoxContainer" parent="LobbyMainScreen/Players/MessagesAndPlayerList/MessagesContainer"]
+layout_mode = 2
+
+[node name="MessageLine" type="LineEdit" parent="LobbyMainScreen/Players/MessagesAndPlayerList/MessagesContainer/MessageEdit"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter Message:"
+
+[node name="SendMessage" type="Button" parent="LobbyMainScreen/Players/MessagesAndPlayerList/MessagesContainer/MessageEdit"]
+layout_mode = 2
+text = "Send Message"
+
+[node name="ReadyButton" type="Button" parent="LobbyMainScreen/Players"]
+layout_mode = 2
+text = "Ready"
+
+[node name="StartButton" type="Button" parent="LobbyMainScreen/Players"]
+visible = false
+layout_mode = 2
+text = "Start Game"

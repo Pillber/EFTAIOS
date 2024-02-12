@@ -1,0 +1,215 @@
+[gd_scene load_steps=6 format=3 uid="uid://cx60ossd3kjop"]
+
+[ext_resource type="Script" path="res://board.gd" id="1_rfakm"]
+[ext_resource type="Script" path="res://camera_controls.gd" id="2_6gcrs"]
+
+[sub_resource type="Curve" id="Curve_5h5jw"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_86tjx"]
+curve = SubResource("Curve_5h5jw")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_eh7vn"]
+lifetime_randomness = 1.0
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(2304, 1296, 0)
+gravity = Vector3(0, 0, 0)
+scale_max = 4.0
+scale_curve = SubResource("CurveTexture_86tjx")
+
+[node name="Board" type="Node2D"]
+script = ExtResource("1_rfakm")
+
+[node name="Background" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Color" type="ColorRect" parent="Background"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.028, 0.028, 0.1, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(703, 625)
+script = ExtResource("2_6gcrs")
+
+[node name="Stars" type="GPUParticles2D" parent="Camera2D"]
+visible = false
+amount = 1000
+process_material = SubResource("ParticleProcessMaterial_eh7vn")
+lifetime = 120.0
+preprocess = 600.0
+speed_scale = 0.25
+randomness = 0.5
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SelectedSectorLabel" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
+
+[node name="PlayerList" type="VBoxContainer" parent="CanvasLayer/UI"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 1
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 250.0
+offset_bottom = 250.0
+
+[node name="NoiseConfirmationPanel" type="Panel" parent="CanvasLayer/UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -104.0
+offset_top = -104.0
+offset_right = 104.0
+offset_bottom = 104.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Center" type="CenterContainer" parent="CanvasLayer/UI/NoiseConfirmationPanel"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 204.0
+offset_bottom = 204.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/NoiseConfirmationPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="Confirmation" type="Label" parent="CanvasLayer/UI/NoiseConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Confirm Noise at:"
+horizontal_alignment = 1
+
+[node name="Location" type="Label" parent="CanvasLayer/UI/NoiseConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "(Sector)"
+horizontal_alignment = 1
+
+[node name="Confirm" type="Button" parent="CanvasLayer/UI/NoiseConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="Decline" type="Button" parent="CanvasLayer/UI/NoiseConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Decline"
+
+[node name="AttackConfirmationPanel" type="Panel" parent="CanvasLayer/UI"]
+visible = false
+custom_minimum_size = Vector2(225, 225)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -112.5
+offset_top = -112.5
+offset_right = 112.5
+offset_bottom = 112.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Center" type="CenterContainer" parent="CanvasLayer/UI/AttackConfirmationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/AttackConfirmationPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="Confirmation" type="Label" parent="CanvasLayer/UI/AttackConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Would you like to Attack at:"
+horizontal_alignment = 1
+
+[node name="Location" type="Label" parent="CanvasLayer/UI/AttackConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "(Sector)"
+horizontal_alignment = 1
+
+[node name="Confirm" type="Button" parent="CanvasLayer/UI/AttackConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="Decline" type="Button" parent="CanvasLayer/UI/AttackConfirmationPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Decline"
+
+[node name="EndTurnPanel" type="Panel" parent="CanvasLayer/UI"]
+visible = false
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Center" type="CenterContainer" parent="CanvasLayer/UI/EndTurnPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/EndTurnPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="EndTurn" type="Label" parent="CanvasLayer/UI/EndTurnPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "End Turn"
+
+[node name="Confirm" type="Button" parent="CanvasLayer/UI/EndTurnPanel/Center/VBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="MessageContainer" type="VBoxContainer" parent="CanvasLayer/UI"]
+custom_minimum_size = Vector2(400, 100)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -450.0
+offset_top = 50.0
+offset_right = -50.0
+offset_bottom = 150.0
+grow_horizontal = 0
