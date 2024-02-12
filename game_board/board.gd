@@ -1,7 +1,7 @@
 extends Node2D
 
-const MESSAGE = preload("res://message.tscn")
-const PLAYER_ITEM = preload("res://player_item.tscn")
+const MESSAGE = preload("res://game_board/message.tscn")
+const PLAYER_ITEM = preload("res://game_board/player_item.tscn")
 
 @onready var noise_conf_popup = $CanvasLayer/UI/NoiseConfirmationPanel
 @onready var attack_conf_popup = $CanvasLayer/UI/AttackConfirmationPanel

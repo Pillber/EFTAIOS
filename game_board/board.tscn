@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cx60ossd3kjop"]
 
-[ext_resource type="Script" path="res://board.gd" id="1_rfakm"]
-[ext_resource type="Script" path="res://camera_controls.gd" id="2_6gcrs"]
+[ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
+[ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]

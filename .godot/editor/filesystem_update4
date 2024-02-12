@@ -1,9 +1,7 @@
+res://game_board/board.tscn
+res://game_board/player_item.tscn
+res://game_board/board.gd
 res://zones/game_tile_set.tres
-res://message.tscn
-res://board.tscn
-res://board.gd
 res://server.tscn
 res://zones/fermi.tscn
-res://player_item.tscn
-res://player_item.gd
-res://server.gd
+res://main.gd

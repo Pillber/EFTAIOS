@@ -1,6 +1,6 @@
 extends Node
 
-const GAME_BOARD = preload("res://board.tscn")
+const GAME_BOARD = preload("res://game_board/board.tscn")
 const SERVER = preload("res://server.tscn")
 
 
