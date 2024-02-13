@@ -54,6 +54,20 @@ func draw_card() -> CardTypes:
 		_: # any silent sector card, item or not
 			pass
 	return drawn_card
+
+enum EscapeCardTypes {
+	RED,
+	GREEN
+}
+
+var escape_deck: Array[EscapeCardTypes] = []
+
+func setup_escape_deck() -> void:
+	escape_deck.append(EscapeCardTypes.RED)
+	for _i in range(4):
+		escape_deck.append(EscapeCardTypes.GREEN)
+	escape_deck.shuffle()
+
 #endregion
 
 #region Players
@@ -84,10 +98,11 @@ class Player:
 		moves.append(position)
 		position = new_position
 	
-	func die() -> void:
+	func die(alien_spawn: Vector2i) -> void:
 		if team == Team.HUMAN:
 			team = Team.ALIEN
 			num_moves = 2
+			position = alien_spawn
 			# update num_moves on related player's board state
 		else: # you are an alien
 			current_state = TurnState.DEAD
@@ -100,12 +115,16 @@ var board = null
 var players: Array[Player] = []
 var current_player_turn: int = 0
 
+signal end_game()
+
 func _ready() -> void:
 	set_process(multiplayer.is_server())
 	set_physics_process(multiplayer.is_server())
 	
 	if not multiplayer.is_server():
 		return
+	
+	end_game.connect(_on_end_game)
 	
 	for player in Global.players:
 		players.append(Player.new(player))
@@ -119,10 +138,11 @@ func _ready() -> void:
 	
 	var i = 0
 	for player in players:
-		var team = Team.ALIEN if i < num_aliens else Team.HUMAN
+		# TODO: fix team assignment
+		var team = Team.HUMAN
 		var spawn = board.zone.alien_spawn if team == Team.ALIEN else board.zone.human_spawn
 		player.set_team(team, spawn)
-		setup_player.rpc_id(player.id, player.num_moves, spawn)
+		setup_player.rpc_id(player.id, player.num_moves, spawn, player.team == Team.ALIEN)
 		i += 1
 		
 		player_id_list.append(player.id)
@@ -133,16 +153,28 @@ func _ready() -> void:
 	players[current_player_turn].current_state = TurnState.MOVING
 	
 	setup_deck()
+	setup_escape_deck()
 
 
 @rpc("reliable", "call_local")
-func setup_player(num_moves: int, spawn: Vector2i) -> void:
+func setup_player(num_moves: int, spawn: Vector2i, is_alien: bool) -> void:
 	board.zone.player_num_moves = num_moves
+	board.zone.is_alien = is_alien
 	board.zone.set_player_position(spawn)
 
 @rpc("reliable", "call_local")
 func init_player_list(list) -> void:
 	board.init_player_list(list)
+
+
+func _on_end_game() -> void:
+	set_process(false)
+	set_physics_process(false)
+	print("ending game!")
+	
+	await get_tree().create_timer(3).timeout
+	
+	get_tree().quit()
 
 #endregion
 
@@ -175,7 +207,33 @@ func _process(_delta) -> void:
 			if not queried_noise:
 				queried_noise = true
 				# get tile at player position
-				if board.zone.is_dangerous_tile(current_player.position):
+				if board.zone.is_escape_pod(current_player.position):
+					print("At escape pod!")
+					var escape_pod = board.zone.get_escape_pod(current_player.position)
+					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] is trying to escape at Escape Pod " + str(escape_pod)})
+					var escape_succeed
+					match escape_deck.pop_back():
+						EscapeCardTypes.RED:
+							escape_succeed = false
+							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Escape pod " + str(escape_pod) + " broke! Player [" + Global.get_username(current_player.id) + "] did not escape!"})
+						EscapeCardTypes.GREEN:
+							escape_succeed = true
+							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] escaped!"})
+							current_player.current_state = TurnState.ESCAPED
+							if check_all_human_dead_or_escaped():
+								server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans escaped! Escaped Humans win!"})
+								emit_signal("end_game")
+							queried_noise = false
+							change_turn()
+							return
+					print(escape_succeed)
+					server_call.rpc(ServerMessage.PLAYER_USE_ESCAPE_POD, {"position":current_player.position,"succeed":escape_succeed})
+					if board.zone.available_escape_pods.size() == 0:
+						# ran out of escape pods, humans lose
+						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"No more Escape Pods! Aliens win!"})
+						emit_signal("end_game")
+					queried_noise = false
+				elif board.zone.is_dangerous_tile(current_player.position):
 					#query deck about noise type
 					var card = draw_card()
 					match card:
@@ -212,12 +270,15 @@ func _process(_delta) -> void:
 		TurnState.DEAD:
 			# skip turn if dead
 			change_turn()
+		TurnState.ESCAPED:
+			# skip turn if escaped
+			change_turn()
 
 
 func change_turn() -> void:
 	# update current player, and start their turn
 	current_player_turn = (current_player_turn + 1) % players.size()
-	if players[current_player_turn].current_state != TurnState.DEAD:
+	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED]:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
 		players[current_player_turn].current_state = TurnState.MOVING
 
@@ -235,6 +296,7 @@ enum ServerMessage {
 	PLAYER_END_TURN,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
+	PLAYER_USE_ESCAPE_POD,
 }
 
 enum ClientMessage {
@@ -267,6 +329,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_END_TURN)
 		ServerMessage.PLAYER_UPDATE_POSITION:
 			board.zone.move_player(payload["new_position"])
+		ServerMessage.PLAYER_USE_ESCAPE_POD:
+			board.zone.use_escape_pod(payload["position"], payload["succeed"])
 		ServerMessage.SERVER_BROADCAST_MESSAGE:
 			board.show_message(payload["message"])
 		ServerMessage.SERVER_BROADCAST_PLAYER_TURN:
@@ -289,22 +353,26 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 		ClientMessage.PLAYER_RETURN_ATTACK:
 			if payload["should_attack"]:
 				#attack
+				server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] attacking at " + board.zone.tile_to_sector(current_player.position) + "."})
 				for player in players:
 					if player == current_player:
 						continue
 					if player.position == current_player.position:
-						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
-						var old_team = player.team
-						player.die()
-						if not player.current_state == TurnState.DEAD:
-							player.position = board.zone.alien_spawn
-						update_num_moves.rpc_id(player.id, player.num_moves, player.position)
-						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
-						if current_player.team == Team.ALIEN and old_team == Team.HUMAN:
-							var new_num_moves =  min(current_player.num_moves + 1, 3)
+						# update attacker's moves if they kill a human
+						if current_player.team == Team.ALIEN and player.team == Team.HUMAN:
+							var new_num_moves = min(current_player.num_moves + 1, 3)
 							current_player.num_moves = new_num_moves
 							update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
-				server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] attacking at " + board.zone.tile_to_sector(current_player.position) + "."})
+						# have the attacked player die
+						player.die(board.zone.alien_spawn)
+						# check for all humans dead, game over if so
+						if check_all_human_dead_or_escaped():
+							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans dead! Aliens win!"})
+							emit_signal("end_game")
+						# update the state of the attacked player
+						update_num_moves.rpc_id(player.id, player.num_moves, player.position)
+						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
+						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
 			queried_attack = false
 			current_player.current_state = TurnState.ENDING_TURN
 		ClientMessage.PLAYER_END_TURN:
@@ -313,4 +381,14 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			current_player.current_state = TurnState.WAITING
 			
 			change_turn()
+
+func check_all_human_dead_or_escaped() -> bool:
+	for player in players:
+		if player.team == Team.HUMAN:
+			if player.current_state == TurnState.DEAD or player.current_state == TurnState.ESCAPED:
+				continue
+			else:
+				return false
+	return true
+
 #endregion

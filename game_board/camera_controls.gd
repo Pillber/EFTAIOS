@@ -24,9 +24,9 @@ func _input(event):
 		position = (mouse_start_pos - event.position) * (1 / zoom.x) + screen_start_position
 	
 	# zoom camera
-	elif event.is_action("zoom_in"):
-		set_zoom(get_zoom() - Vector2.ONE * zoom_factor)
 	elif event.is_action("zoom_out"):
+		set_zoom(get_zoom() - Vector2.ONE * zoom_factor)
+	elif event.is_action("zoom_in"):
 		set_zoom(get_zoom() + Vector2.ONE * zoom_factor)
 	
 	# clamp zoom value

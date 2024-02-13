@@ -20,8 +20,10 @@ var possible_moves: Array[Vector2i] = []
 
 # special tiles for validity checks
 var used_board_tiles: Array[Vector2i]
+var available_escape_pods: Array[Vector2i]
 var player_position: Vector2i
 var player_num_moves: int = 1
+var is_alien: bool = false
 
 func _ready() -> void:
 	setup_board()
@@ -29,6 +31,7 @@ func _ready() -> void:
 func setup_board() -> void:
 	# get tiles
 	used_board_tiles = get_used_cells(BOARD_LAYER)
+	available_escape_pods = escape_pods.duplicate(true)
 	
 	# add label to normal tiles
 	for tile in used_board_tiles:
@@ -46,6 +49,7 @@ func setup_board() -> void:
 func add_label_to_tile(tile: Vector2i, label_text: String, label_color: Color, font_size: int = -1) -> void:
 	# make the label and add it to scene
 	var tile_label = make_label(label_text, label_color, font_size)
+	tile_label.name = label_text
 	add_child(tile_label)
 	# position label in center of tile
 	tile_label.global_position = to_global(map_to_local(tile)) - Vector2(tile_label.size.x / 2, tile_label.size.y / 2)
@@ -73,6 +77,25 @@ func tile_to_sector(tile: Vector2i) -> String:
 
 func is_dangerous_tile(tile: Vector2i) -> bool:
 	return tile in get_used_cells_by_id(BOARD_LAYER, BOARD_SOURCE_ID, Vector2i(1, 0))
+
+
+func is_escape_pod(tile: Vector2i) -> bool:
+	return tile in available_escape_pods
+
+
+func get_escape_pod(tile: Vector2i) -> int:
+	var index = 1
+	for pod in escape_pods:
+		if tile == pod:
+			return index
+		index += 1
+	return -1
+
+
+func use_escape_pod(tile: Vector2i, succeed: bool) -> void:
+	# deleting escape pod screws up finding
+	set_cell(BOARD_LAYER, tile, SPECIALS_SOURCE_ID, Vector2i(0, 0), 2 if succeed else 1)
+	available_escape_pods.erase(tile)
 
 
 func set_player_position(new_position: Vector2i) -> void:
@@ -138,6 +161,12 @@ func get_valid_moves(new_moves: Array[Vector2i]) -> Array[Vector2i]:
 			continue
 		elif move == player_position:
 			#print("Already there")
+			continue
+		elif is_alien and move in escape_pods:
+			#print("escape pod, unusable by aliens")
+			continue
+		elif move in escape_pods and not move in available_escape_pods:
+			#print("used escape pod, unuseable by all")
 			continue
 		result.append(move)
 	return result

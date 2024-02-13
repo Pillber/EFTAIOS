@@ -13,7 +13,12 @@ texture_region_size = Vector2i(140, 128)
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3tovx"]
 texture = ExtResource("2_k0hgu")
 texture_region_size = Vector2i(140, 128)
+0:0/next_alternative_id = 3
 0:0/0 = 0
+0:0/1 = 1
+0:0/1/modulate = Color(1, 0, 0, 1)
+0:0/2 = 2
+0:0/2/modulate = Color(0.0156863, 1, 0, 1)
 1:0/0 = 0
 2:0/0 = 0
 
