@@ -174,6 +174,10 @@ func _on_end_game() -> void:
 	
 	await get_tree().create_timer(3).timeout
 	
+	end_quit_game.rpc()
+
+@rpc("reliable", "call_local")
+func end_quit_game() -> void:
 	get_tree().quit()
 
 #endregion
