@@ -30,11 +30,11 @@ var deck: Array[CardTypes] = []
 var discard: Array[CardTypes] = []
 
 func setup_deck() -> void:
-	for _i in range(1):
+	for _i in range(27):
 		deck.append(CardTypes.NOISE_ANY_SECTOR)
 		deck.append(CardTypes.NOISE_THIS_SECTOR)
 	
-	for _i in range(1):
+	for _i in range(23):
 		deck.append(CardTypes.SILENT_SECTOR)
 		
 	deck.shuffle()
