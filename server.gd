@@ -139,7 +139,7 @@ func _ready() -> void:
 	var i = 0
 	for player in players:
 		# TODO: fix team assignment
-		var team = Team.HUMAN
+		var team = Team.ALIEN if i < num_aliens else Team.HUMAN
 		var spawn = board.zone.alien_spawn if team == Team.ALIEN else board.zone.human_spawn
 		player.set_team(team, spawn)
 		setup_player.rpc_id(player.id, player.num_moves, spawn, player.team == Team.ALIEN)
