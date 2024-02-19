@@ -126,6 +126,8 @@ func _ready() -> void:
 	
 	end_game.connect(_on_end_game)
 	
+	Global.player_disconnected.connect(_on_player_disconnected)
+	
 	for player in Global.players:
 		players.append(Player.new(player))
 	
@@ -180,6 +182,12 @@ func _on_end_game() -> void:
 func end_quit_game() -> void:
 	get_tree().quit()
 
+
+func _on_player_disconnected(player_id: int) -> void:
+	for player in players:
+		if player.id == player_id:
+			player.current_state = TurnState.DISCONNECTED
+
 #endregion
 
 #region Game Logic
@@ -193,7 +201,10 @@ enum TurnState {
 	USING_ITEM,
 	DEAD,
 	ESCAPED,
+	DISCONNECTED,
 }
+
+var total_turns: int = 1
 
 var queried_movement: bool = false
 var queried_noise: bool = false
@@ -277,11 +288,23 @@ func _process(_delta) -> void:
 		TurnState.ESCAPED:
 			# skip turn if escaped
 			change_turn()
+		TurnState.DISCONNECTED:
+			# skip turn if disconnected
+			change_turn()
 
 
 func change_turn() -> void:
 	# update current player, and start their turn
+	var previous_player_turn = current_player_turn
 	current_player_turn = (current_player_turn + 1) % players.size()
+	if current_player_turn <= previous_player_turn:
+		total_turns += 1
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_NEXT_TURN, {"turn_number":total_turns})
+	
+	if total_turns >= 40:
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Turn limit reached: Aliens Win!"})
+		emit_signal("end_game")
+	
 	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED]:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
 		players[current_player_turn].current_state = TurnState.MOVING
@@ -301,6 +324,7 @@ enum ServerMessage {
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
 	PLAYER_USE_ESCAPE_POD,
+	SERVER_BROADCAST_NEXT_TURN,
 }
 
 enum ClientMessage {
@@ -339,6 +363,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			board.show_message(payload["message"])
 		ServerMessage.SERVER_BROADCAST_PLAYER_TURN:
 			board.set_player_turn(payload["player"])
+		ServerMessage.SERVER_BROADCAST_NEXT_TURN:
+			board.set_current_turn(payload["turn_number"])
 
 # called from client onto server. server logic to use client responses
 @rpc("any_peer", "reliable", "call_local")
@@ -389,7 +415,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:
 		if player.team == Team.HUMAN:
-			if player.current_state == TurnState.DEAD or player.current_state == TurnState.ESCAPED:
+			if player.current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.ESCAPED]:
 				continue
 			else:
 				return false

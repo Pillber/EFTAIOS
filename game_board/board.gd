@@ -45,8 +45,12 @@ func init_player_list(list) -> void:
 
 func set_player_turn(player_id: int) -> void:
 	for player in player_list.get_children():
-		player.set_current_player(player.id == player_id)
+		if player.has_method("set_current_player"):
+			player.set_current_player(player.id == player_id)
 
+
+func set_current_turn(turn_number: int) -> void:
+	$CanvasLayer/UI/PlayerList/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
 
 func show_mouse_sector() -> void:
 	var mouse_pos = zone.get_tile_at_mouse()

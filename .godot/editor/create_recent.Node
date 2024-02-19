@@ -1,11 +1,11 @@
 Label
+PanelContainer
+Panel
 VSeparator
 TextureButton
-PanelContainer
 TextureRect
 HBoxContainer
 VBoxContainer
-Panel
 CPUParticles2D
 GPUParticles2D
 ColorRect
