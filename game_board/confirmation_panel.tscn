@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bcwq1l1rtg0rx"]
 
-[ext_resource type="Script" path="res://confirmation_panel.gd" id="1_gwo3j"]
+[ext_resource type="Script" path="res://game_board/confirmation_panel.gd" id="1_gwo3j"]
 
 [node name="ConfirmationPanel" type="Control"]
 custom_minimum_size = Vector2(200, 200)

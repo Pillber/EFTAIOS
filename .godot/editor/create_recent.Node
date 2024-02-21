@@ -1,8 +1,8 @@
+Label
+VBoxContainer
 Panel
 CenterContainer
 Button
-Label
-VBoxContainer
 PanelContainer
 VSeparator
 TextureButton

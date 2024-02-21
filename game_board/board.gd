@@ -20,7 +20,7 @@ func _process(_delta):
 
 func show_mouse_sector() -> void:
 	var mouse_pos = zone.get_tile_at_mouse()
-	$CanvasLayer/UI/Panel/SelectedSectorLabel.text = zone.tile_to_sector(mouse_pos)
+	$CanvasLayer/UI/SelectedSectorPanel/SelectedSectorLabel.text = zone.tile_to_sector(mouse_pos)
 
 
 func _input(event):

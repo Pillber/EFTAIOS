@@ -19,5 +19,6 @@ func pop_up(confirmation_text: String, sector: String = "", show_decline: bool =
 	$Panel/CenterContainer/VBoxContainer/ConfirmationText.text = confirmation_text
 	$Panel/CenterContainer/VBoxContainer/Sector.text = sector
 	$Panel/CenterContainer/VBoxContainer/DeclineButton.visible = show_decline
+	# wait a frame to make sure the player doesn't select something and immediatly hit either confirm or decline
 	await get_tree().process_frame
 	show()
