@@ -2,3 +2,8 @@ res://game_board/board.tscn
 res://game_board/board.gd
 res://zones/game_tile_set.tres
 res://server.gd
+res://confirmation_panel.tscn
+res://server.tscn
+res://zones/fermi.tscn
+res://confirmation_panel.gd
+res://game_board/message.tscn

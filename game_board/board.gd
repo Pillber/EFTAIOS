@@ -3,32 +3,25 @@ extends Node2D
 const MESSAGE = preload("res://game_board/message.tscn")
 const PLAYER_ITEM = preload("res://game_board/player_item.tscn")
 
-@onready var noise_conf_popup = $CanvasLayer/UI/NoiseConfirmationPanel
-@onready var attack_conf_popup = $CanvasLayer/UI/AttackConfirmationPanel
-@onready var end_turn_popup = $CanvasLayer/UI/EndTurnPanel
+@onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
 @onready var player_list = $CanvasLayer/UI/PlayerList
 
 var zone: Zone = null
 
 signal tile_selected(tile)
-signal noise_selected(confirmed)
-signal attack_selected(confirmed)
-signal turn_ended()
 
 func _ready() -> void:
 	$Camera2D/Stars.show()
-	
-	noise_conf_popup.get_node("Center/VBoxContainer/Confirm").pressed.connect(_on_noise_confirmed)
-	noise_conf_popup.get_node("Center/VBoxContainer/Decline").pressed.connect(_on_noise_declined)
-	
-	attack_conf_popup.get_node("Center/VBoxContainer/Confirm").pressed.connect(_on_attack_confirmed)
-	attack_conf_popup.get_node("Center/VBoxContainer/Decline").pressed.connect(_on_attack_declined)
-
-	end_turn_popup.get_node("Center/VBoxContainer/Confirm").pressed.connect(func(): emit_signal("turn_ended"))
 
 func _process(_delta):
 	show_mouse_sector()
+
+
+func show_mouse_sector() -> void:
+	var mouse_pos = zone.get_tile_at_mouse()
+	$CanvasLayer/UI/Panel/SelectedSectorLabel.text = zone.tile_to_sector(mouse_pos)
+
 
 func _input(event):
 	if event.is_action_pressed("left_click"):
@@ -52,13 +45,8 @@ func set_player_turn(player_id: int) -> void:
 func set_current_turn(turn_number: int) -> void:
 	$CanvasLayer/UI/PlayerList/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
 
-func show_mouse_sector() -> void:
-	var mouse_pos = zone.get_tile_at_mouse()
-	$CanvasLayer/UI/SelectedSectorLabel.text = zone.tile_to_sector(mouse_pos)
 
-
-func show_message(message: String) -> void:
-	
+func show_message(message: String) -> void:	
 	var message_panel = make_message(message)
 	message_container.add_child(message_panel)
 	
@@ -71,75 +59,39 @@ func make_message(message: String) -> Control:
 	panel.get_node("Panel/Text").text = message
 	return panel
 
+#region Player Actions
 func get_move() -> Vector2i:
 	while true:
 		var selected_tile = await tile_selected
 		if selected_tile in zone.possible_moves:
-			return selected_tile
-		else:
-			print("Can't move there!")
+			confirmation_popup.pop_up("Would you like to move to:", zone.tile_to_sector(selected_tile))
+			if await confirmation_popup.finished:
+				return selected_tile
 	return Vector2i.ZERO
 
 func end_turn() -> void:
-	end_turn_popup.show()
-	
-	await turn_ended
-
-	end_turn_popup.hide()
-
-#region Attack
+	confirmation_popup.pop_up("End Turn", "", false)
+	await confirmation_popup.finished
 
 func attack() -> bool:
-	attack_conf_popup.get_node("Center/VBoxContainer/Location").text = zone.tile_to_sector(zone.player_position)
-	
-	attack_conf_popup.show()
-	
-	return await attack_selected
-
-func _on_attack_confirmed() -> void:
-	attack_conf_popup.hide()
-	emit_signal("attack_selected", true)
-
-
-func _on_attack_declined() -> void:
-	attack_conf_popup.hide()
-	emit_signal("attack_selected", false)
-
-#endregion
-
-#region Noise
+	confirmation_popup.pop_up("Would you like to Attack at:", zone.tile_to_sector(zone.player_position))
+	return await confirmation_popup.finished
 
 func make_noise_any_sector() -> Vector2i:
-	noise_conf_popup.get_node("Center/VBoxContainer/Decline").show()
+	confirmation_popup.pop_up("Make noise at any sector:", "Select any tile to make a noise there", false)
+	await confirmation_popup.finished
 	
 	var selected_tile
 	while true:
 		selected_tile = await tile_selected
-		noise_conf_popup.get_node("Center/VBoxContainer/Location").text = zone.tile_to_sector(selected_tile)
-		noise_conf_popup.show()
-		
-		if await noise_selected:
+		confirmation_popup.pop_up("Confirm Noise at:", zone.tile_to_sector(selected_tile))
+		if await confirmation_popup.finished:
 			break
-
-	print("noise selected")
+	
 	return selected_tile
 
 func make_noise_this_sector() -> Vector2i:
-	noise_conf_popup.get_node("Center/VBoxContainer/Decline").hide()
-	
-	noise_conf_popup.get_node("Center/VBoxContainer/Location").text = zone.tile_to_sector(zone.player_position)
-	noise_conf_popup.show()
-
-	await noise_selected
-
+	confirmation_popup.pop_up("Making noise at: ", zone.tile_to_sector(zone.player_position), false)
+	await confirmation_popup.finished
 	return zone.player_position
-
-func _on_noise_confirmed() -> void:
-	noise_conf_popup.hide()
-	emit_signal("noise_selected", true)
-
-func _on_noise_declined() -> void:
-	noise_conf_popup.hide()
-	emit_signal("noise_selected", false)
-
 #endregion
