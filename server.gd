@@ -8,16 +8,16 @@ extends Node
 	
 	6 Silence (no item)
 	17 Silence (with item)
-		2 Attack
-		1 Teleport
-		3 Adrenaline
-		3 Sedatives
-		1 Defense
-		2 Spotlight
-		1 Clone
-		1 Sensor
-		1 Mutation
-		1 Cat
+		2 Attack - TurnState.ATTACKING
+		3 Adrenaline - TurnState.MOVING
+		3 Sedatives - TurnState.MOVING 
+		1 Cat - TurnState.MAKING_NOISE
+		1 Defense - When Attacked
+		1 Clone - When Attacked
+		1 Teleport - Any Time
+		2 Spotlight - Any Time
+		1 Sensor - Any Time
+		1 Mutation - Any Time
 """
 
 enum CardTypes {

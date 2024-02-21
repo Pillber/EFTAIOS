@@ -1,8 +1,4 @@
-res://server.tscn
+res://game_board/board.tscn
 res://game_board/board.gd
 res://zones/game_tile_set.tres
 res://server.gd
-res://game_board/player_item.tscn
-res://zones/fermi.tscn
-res://game_board/board.tscn
-res://game_board/message.tscn
