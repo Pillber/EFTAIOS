@@ -54,8 +54,7 @@ var noise_deck_params = {
 		"discard" : false,
 		"items" : {
 			#item : count
-			null : 6,
-			"attack" : 2,
+			null : 23,
 		}
 	}
 }
