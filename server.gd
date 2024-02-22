@@ -290,7 +290,7 @@ func change_turn() -> void:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Turn limit reached: Aliens Win!"})
 		emit_signal("end_game")
 	
-	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED]:
+	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.DISCONNECTED]:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
 		players[current_player_turn].current_state = TurnState.MOVING
 
@@ -400,7 +400,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:
 		if player.team == Team.HUMAN:
-			if player.current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.ESCAPED]:
+			if player.current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.DISCONNECTED]:
 				continue
 			else:
 				return false
