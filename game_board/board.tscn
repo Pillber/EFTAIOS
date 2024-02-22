@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://cx60ossd3kjop"]
+[gd_scene load_steps=10 format=3 uid="uid://cx60ossd3kjop"]
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
+[ext_resource type="Script" path="res://deck.gd" id="2_c8bdp"]
 [ext_resource type="PackedScene" uid="uid://bcwq1l1rtg0rx" path="res://game_board/confirmation_panel.tscn" id="3_abcto"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
@@ -40,6 +41,7 @@ script = ExtResource("1_rfakm")
 
 [node name="Background" type="CanvasLayer" parent="."]
 layer = -1
+script = ExtResource("2_c8bdp")
 
 [node name="Color" type="ColorRect" parent="Background"]
 anchors_preset = 15

@@ -1,24 +1,6 @@
 extends Node
 
 #region Deck
-"""
-	77 total: 17 items
-	27 Noise in Any Sector
-	27 Noise in This Sector
-	
-	6 Silence (no item)
-	17 Silence (with item)
-		2 Attack - TurnState.ATTACKING
-		3 Adrenaline - TurnState.MOVING
-		3 Sedatives - TurnState.MOVING 
-		1 Cat - TurnState.MAKING_NOISE
-		1 Defense - When Attacked
-		1 Clone - When Attacked
-		1 Teleport - Any Time
-		2 Spotlight - Any Time
-		1 Sensor - Any Time
-		1 Mutation - Any Time
-"""
 
 enum CardTypes {
 	NOISE_ANY_SECTOR,
@@ -140,7 +122,6 @@ func _ready() -> void:
 	
 	var i = 0
 	for player in players:
-		# TODO: fix team assignment
 		var team = Team.ALIEN if i < num_aliens else Team.HUMAN
 		var spawn = board.zone.alien_spawn if team == Team.ALIEN else board.zone.human_spawn
 		player.set_team(team, spawn)
