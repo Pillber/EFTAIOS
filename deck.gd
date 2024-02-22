@@ -1,5 +1,4 @@
 extends Node
-class_name Decks
 
 enum CardType {
 	# noise deck
@@ -20,7 +19,7 @@ class Card:
 	func _init(p_type: CardType, to_discard: bool, p_item = null):
 		type = p_type
 		discard = to_discard
-		item = item
+		item = p_item
 
 """
 	77 total: 17 items
@@ -105,11 +104,6 @@ class Deck:
 var noise_deck: Deck
 var escape_deck: Deck
 
-"""
 func _ready() -> void:
 	noise_deck = Deck.new(noise_deck_params)
 	escape_deck = Deck.new(escape_deck_params)
-	
-	for _i in range(63):
-		print(noise_deck.draw_card().type)
-"""

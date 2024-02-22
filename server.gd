@@ -1,57 +1,5 @@
 extends Node
 
-#region Deck
-
-enum CardTypes {
-	NOISE_ANY_SECTOR,
-	NOISE_THIS_SECTOR,
-	SILENT_SECTOR,
-}
-
-var deck: Array[CardTypes] = []
-var discard: Array[CardTypes] = []
-
-func setup_deck() -> void:
-	for _i in range(27):
-		deck.append(CardTypes.NOISE_ANY_SECTOR)
-		deck.append(CardTypes.NOISE_THIS_SECTOR)
-	
-	for _i in range(23):
-		deck.append(CardTypes.SILENT_SECTOR)
-		
-	deck.shuffle()
-
-func draw_card() -> CardTypes:
-	if deck.size() == 0:
-		# shuffle discard
-		deck = discard.duplicate()
-		discard.clear()
-		deck.shuffle()
-	var drawn_card = deck.pop_back()
-	match drawn_card:
-		CardTypes.NOISE_ANY_SECTOR:
-			discard.append(drawn_card)
-		CardTypes.NOISE_THIS_SECTOR:
-			discard.append(drawn_card)
-		_: # any silent sector card, item or not
-			pass
-	return drawn_card
-
-enum EscapeCardTypes {
-	RED,
-	GREEN
-}
-
-var escape_deck: Array[EscapeCardTypes] = []
-
-func setup_escape_deck() -> void:
-	escape_deck.append(EscapeCardTypes.RED)
-	for _i in range(4):
-		escape_deck.append(EscapeCardTypes.GREEN)
-	escape_deck.shuffle()
-
-#endregion
-
 #region Players
 enum Team {
 	HUMAN,
@@ -134,9 +82,6 @@ func _ready() -> void:
 
 	server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
 	players[current_player_turn].current_state = TurnState.MOVING
-	
-	setup_deck()
-	setup_escape_deck()
 
 
 @rpc("reliable", "call_local")
@@ -212,11 +157,11 @@ func _process(_delta) -> void:
 					var escape_pod = board.zone.get_escape_pod(current_player.position)
 					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] is trying to escape at Escape Pod " + str(escape_pod)})
 					var escape_succeed
-					match escape_deck.pop_back():
-						EscapeCardTypes.RED:
+					match Decks.escape_deck.draw_card().type:
+						Decks.CardType.ESCAPE_FAIL:
 							escape_succeed = false
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Escape pod " + str(escape_pod) + " broke! Player [" + Global.get_username(current_player.id) + "] did not escape!"})
-						EscapeCardTypes.GREEN:
+						Decks.CardType.ESCAPE_SUCCESS:
 							escape_succeed = true
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] escaped!"})
 							current_player.current_state = TurnState.ESCAPED
@@ -235,12 +180,11 @@ func _process(_delta) -> void:
 					queried_noise = false
 				elif board.zone.is_dangerous_tile(current_player.position):
 					#query deck about noise type
-					var card = draw_card()
-					match card:
-						CardTypes.NOISE_ANY_SECTOR:
+					match Decks.noise_deck.draw_card().type:
+						Decks.CardType.NOISE_ANY_SECTOR:
 							server_call.rpc_id(current_player.id, ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Make a noise at any sector."})
 							server_call.rpc_id(current_player.id, ServerMessage.PLAYER_NOISE_ANY_SECTOR)
-						CardTypes.NOISE_THIS_SECTOR:
+						Decks.CardType.NOISE_THIS_SECTOR:
 							server_call.rpc_id(current_player.id, ServerMessage.PLAYER_NOISE_THIS_SECTOR)
 						_:
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Silence in all sectors."})
