@@ -168,6 +168,10 @@ func _on_player_disconnected(player_id: int) -> void:
 	for player in players:
 		if player.id == player_id:
 			player.current_state = TurnState.DISCONNECTED
+	queried_movement = false
+	queried_noise = false
+	queried_attack = false
+	queried_end_turn = false
 
 #endregion
 
