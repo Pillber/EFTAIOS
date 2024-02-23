@@ -3,17 +3,16 @@
 [ext_resource type="Script" path="res://game_board/confirmation_panel.gd" id="1_gwo3j"]
 
 [node name="ConfirmationPanel" type="Control"]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(300, 150)
 layout_mode = 3
-anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.55
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.55
 offset_left = -100.0
-offset_top = -100.0
+offset_top = -75.0
 offset_right = 100.0
-offset_bottom = 100.0
+offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gwo3j")
@@ -27,13 +26,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="Panel"]
-custom_minimum_size = Vector2(300, 200)
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel/CenterContainer"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 10
 
 [node name="ConfirmationText" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(150, 20)

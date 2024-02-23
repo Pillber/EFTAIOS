@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://crai0glpdygy7"]
+
+[ext_resource type="Script" path="res://game_board/turn_item.gd" id="1_i6vow"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lbbvi"]
+
+[node name="TurnItem" type="PanelContainer"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_lbbvi")
+script = ExtResource("1_i6vow")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TurnLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Turn 1"
+horizontal_alignment = 1
+
+[node name="Move" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1

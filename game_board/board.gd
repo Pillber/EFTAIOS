@@ -2,17 +2,41 @@ extends Node2D
 
 const MESSAGE = preload("res://game_board/message.tscn")
 const PLAYER_ITEM = preload("res://game_board/player_item.tscn")
+const TURN_ITEM = preload("res://game_board/turn_item.tscn")
 
 @onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
 @onready var player_list = $CanvasLayer/UI/PlayerList
+@onready var turn_grid = $CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel/TurnGrid
 
 var zone: Zone = null
+var current_turn_number: int = 1
 
 signal tile_selected(tile)
 
 func _ready() -> void:
 	$Camera2D/Stars.show()
+	init_turn_grid()
+
+
+func init_turn_grid() -> void:
+	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateLabel.pressed.connect(func(): turn_grid.visible = not turn_grid.visible)
+	
+	for i in range(1, 41):
+		var turn = TURN_ITEM.instantiate()
+		turn.name = str(i)
+		turn.set_turn_number(i)
+		turn_grid.add_child(turn)
+
+
+func init_player_list(list) -> void:
+	for player in list:
+		var item = PLAYER_ITEM.instantiate()
+		item.set_id(player)
+		item.set_player_name(Global.get_username(player))
+		
+		player_list.add_child(item)
+
 
 func _process(_delta):
 	show_mouse_sector()
@@ -28,14 +52,6 @@ func _input(event):
 		tile_selected.emit(zone.get_tile_at_mouse())
 
 
-func init_player_list(list) -> void:
-	for player in list:
-		var item = PLAYER_ITEM.instantiate()
-		item.set_id(player)
-		item.set_player_name(Global.get_username(player))
-		
-		player_list.add_child(item)
-
 func set_player_turn(player_id: int) -> void:
 	for player in player_list.get_children():
 		if player.has_method("set_current_player"):
@@ -43,6 +59,7 @@ func set_player_turn(player_id: int) -> void:
 
 
 func set_current_turn(turn_number: int) -> void:
+	current_turn_number = turn_number
 	$CanvasLayer/UI/PlayerList/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
 
 
@@ -66,6 +83,7 @@ func get_move() -> Vector2i:
 		if selected_tile in zone.possible_moves:
 			confirmation_popup.pop_up("Would you like to move to:", zone.tile_to_sector(selected_tile))
 			if await confirmation_popup.finished:
+				turn_grid.get_node(str(current_turn_number)).set_move(zone.tile_to_sector(selected_tile))
 				return selected_tile
 	return Vector2i.ZERO
 
@@ -75,7 +93,10 @@ func end_turn() -> void:
 
 func attack() -> bool:
 	confirmation_popup.pop_up("Would you like to Attack at:", zone.tile_to_sector(zone.player_position))
-	return await confirmation_popup.finished
+	var should_attack = await confirmation_popup.finished
+	if should_attack:
+		turn_grid.get_node(str(current_turn_number)).set_attacked()
+	return should_attack
 
 func make_noise_any_sector() -> Vector2i:
 	confirmation_popup.pop_up("Make noise at any sector:", "Select any tile to make a noise there", false)
