@@ -63,52 +63,63 @@ class Card:
 """
 
 
-var noise_deck_params = {
-	CardType.NOISE_THIS_SECTOR : {
+var noise_deck_params = [
+	{
+		"type" : CardType.NOISE_THIS_SECTOR,
 		"count" : 27,
 		"discard" : true,
 	},
-	CardType.NOISE_ANY_SECTOR : {
+	{
+		"type" : CardType.NOISE_ANY_SECTOR,
 		"count" : 27,
 		"discard" : true,
 	},
-	CardType.SILENT_SECTOR : {
+	{
+		"type" : CardType.SILENT_SECTOR,
+		"count" : 6,
 		"discard" : false,
-		"items" : {
-			#item : count
-			null : 23,
-		}
-	}
-}
+		"item" : null
+	},
+	{
+		"type" : CardType.SILENT_SECTOR,
+		"count" : 2,
+		"discard" : false,
+		"item" : "attack"
+	},
+]
 
-var escape_deck_params = {
-	CardType.ESCAPE_SUCCESS : {
+var escape_deck_params = [
+	{
+		"type" : CardType.ESCAPE_SUCCESS,
 		"count" : 4,
 		"discard" : false,
 	},
-	CardType.ESCAPE_FAIL : {
+	{
+		"type" : CardType.ESCAPE_FAIL,
 		"count" : 1,
 		"discard" : false,
 	}
-}
+	
+]
 
 class Deck:
 	
 	var draw_pile: Array[Card]
 	var discard_pile: Array[Card]
 	
-	func _init(params: Dictionary):
+	func _init(params: Array):
 		draw_pile = []
 		discard_pile = []
 		
 		for card_type in params:
-			if params[card_type].has("items"):
-				for item in params[card_type]["items"]:
-					for count in params[card_type]["items"][item]:
-						draw_pile.append(Card.new(card_type, params[card_type]["discard"], item))
-			else:
-				for _i in params[card_type]["count"]:
-					draw_pile.append(Card.new(card_type, params[card_type]["discard"]))
+			var type = card_type["type"]
+			var count = card_type["count"]
+			var discard = card_type["discard"]
+			var item = card_type["item"] if card_type.has("item") else null
+			
+			for _i in range(count):
+				draw_pile.append(Card.new(type, discard, item))
+
 		draw_pile.shuffle()
 		
 	func draw_card() -> Card:
