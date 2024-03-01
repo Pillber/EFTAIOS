@@ -81,7 +81,7 @@ func _ready() -> void:
 	init_player_list.rpc(player_id_list)
 
 	server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
-	players[current_player_turn].current_state = TurnState.MOVING
+	change_state(players[current_player_turn], TurnState.MOVING)
 
 
 @rpc("reliable", "call_local")
@@ -123,18 +123,39 @@ func _on_player_disconnected(player_id: int) -> void:
 #region Game Logic
 
 enum TurnState {
-	WAITING,
-	MOVING,
-	MAKING_NOISE,
-	ATTACKING,
-	ENDING_TURN,
+	WAITING = 0b0,
+	MOVING = 0b1,
+	MAKING_NOISE = 0b10,
+	ATTACKING = 0b100,
+	ENDING_TURN = 0b1000,
+	DEAD = 0b10000,
+	ESCAPED = 0b100000,
+	DISCONNECTED = 0b1000000,
 	USING_ITEM,
-	DEAD,
-	ESCAPED,
-	DISCONNECTED,
 }
 
 var total_turns: int = 1
+
+""" Example State Machine
+	state_one()
+	
+func _input(event):
+	if event.is_action_pressed("left_click"):
+		emit_signal("next_state")
+
+signal next_state()
+
+func state_one():
+	print("state one")
+	await next_state
+	state_two()
+
+func state_two():
+	print("state two")
+	for i in range(60):
+		await get_tree().physics_frame
+	state_one()
+"""
 
 var queried_movement: bool = false
 var queried_noise: bool = false
@@ -164,7 +185,7 @@ func _process(_delta) -> void:
 						Decks.CardType.ESCAPE_SUCCESS:
 							escape_succeed = true
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] escaped!"})
-							current_player.current_state = TurnState.ESCAPED
+							change_state(current_player, TurnState.ESCAPED)
 							if check_all_human_dead_or_escaped():
 								server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans escaped! Escaped Humans win!"})
 								emit_signal("end_game")
@@ -189,11 +210,11 @@ func _process(_delta) -> void:
 						_:
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Silence in all sectors."})
 							queried_noise = false
-							current_player.current_state = TurnState.ATTACKING
+							change_state(current_player, TurnState.ATTACKING)
 				else:
 					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message" : "Silent sector."})
 					queried_noise = false
-					current_player.current_state = TurnState.ATTACKING
+					change_state(current_player, TurnState.ATTACKING)
 		TurnState.USING_ITEM:
 			push_warning("TurnState.USING_ITEM: Not implemented yet!")
 			pass
@@ -204,7 +225,7 @@ func _process(_delta) -> void:
 					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ATTACK)
 				else:
 					queried_attack = false
-					current_player.current_state = TurnState.ENDING_TURN
+					change_state(current_player, TurnState.ENDING_TURN)
 		TurnState.ENDING_TURN:
 			if not queried_end_turn:
 				queried_end_turn = true
@@ -236,7 +257,13 @@ func change_turn() -> void:
 	
 	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.DISCONNECTED]:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
-		players[current_player_turn].current_state = TurnState.MOVING
+		change_state(players[current_player_turn], TurnState.MOVING)
+
+
+func change_state(current_player: Player, new_state: TurnState) -> void:
+	current_player.current_state = new_state
+	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":new_state})
+
 
 @rpc("reliable", "call_local")
 func update_num_moves(new_num_moves: int, player_position: Vector2i) -> void:
@@ -250,9 +277,10 @@ enum ServerMessage {
 	PLAYER_UPDATE_POSITION,
 	PLAYER_ATTACK,
 	PLAYER_END_TURN,
+	PLAYER_USE_ESCAPE_POD,
+	PLAYER_SET_TURN_STATE,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
-	PLAYER_USE_ESCAPE_POD,
 	SERVER_BROADCAST_NEXT_TURN,
 }
 
@@ -288,6 +316,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			board.zone.move_player(payload["new_position"])
 		ServerMessage.PLAYER_USE_ESCAPE_POD:
 			board.zone.use_escape_pod(payload["position"], payload["succeed"])
+		ServerMessage.PLAYER_SET_TURN_STATE:
+			board.set_player_turn_state(payload["turn_state"])
 		ServerMessage.SERVER_BROADCAST_MESSAGE:
 			board.show_message(payload["message"])
 		ServerMessage.SERVER_BROADCAST_PLAYER_TURN:
@@ -304,11 +334,11 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			current_player.move_to(payload["new_position"])
 			server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, payload)
 			queried_movement = false
-			current_player.current_state = TurnState.MAKING_NOISE
+			change_state(current_player, TurnState.MAKING_NOISE)
 		ClientMessage.PLAYER_RETURN_NOISE:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Noise at " + board.zone.tile_to_sector(payload["noise_position"]) + "."})
 			queried_noise = false
-			current_player.current_state = TurnState.ATTACKING
+			change_state(current_player, TurnState.ATTACKING)
 		ClientMessage.PLAYER_RETURN_ATTACK:
 			if payload["should_attack"]:
 				#attack
@@ -324,6 +354,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 							update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
 						# have the attacked player die
 						player.die(board.zone.alien_spawn)
+						server_call.rpc_id(player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":TurnState.DEAD})
 						# check for all humans dead, game over if so
 						if check_all_human_dead_or_escaped():
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans dead! Aliens win!"})
@@ -333,11 +364,11 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
 						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
 			queried_attack = false
-			current_player.current_state = TurnState.ENDING_TURN
+			change_state(current_player, TurnState.ENDING_TURN)
 		ClientMessage.PLAYER_END_TURN:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] ends their turn."})
 			queried_end_turn = false
-			current_player.current_state = TurnState.WAITING
+			change_state(current_player, TurnState.WAITING)
 			
 			change_turn()
 

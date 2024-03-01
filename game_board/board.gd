@@ -11,6 +11,7 @@ const TURN_ITEM = preload("res://game_board/turn_item.tscn")
 
 var zone: Zone = null
 var current_turn_number: int = 1
+var current_turn_state: int = 0
 
 signal tile_selected(tile)
 
@@ -20,7 +21,7 @@ func _ready() -> void:
 
 
 func init_turn_grid() -> void:
-	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateLabel.pressed.connect(func(): turn_grid.visible = not turn_grid.visible)
+	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.pressed.connect(func(): turn_grid.visible = not turn_grid.visible)
 	
 	for i in range(1, 41):
 		var turn = TURN_ITEM.instantiate()
@@ -56,6 +57,32 @@ func set_player_turn(player_id: int) -> void:
 	for player in player_list.get_children():
 		if player.has_method("set_current_player"):
 			player.set_current_player(player.id == player_id)
+
+
+func turn_state_to_string(turn_state: int) -> String:
+	match turn_state:
+		0b0:
+			return "Waiting"
+		0b1:
+			return "Moving"
+		0b10:
+			return "Making Noise"
+		0b100:
+			return "Attacking"
+		0b1000:
+			return "Ending Turn"
+		0b10000:
+			return "Dead (lol)"
+		0b100000:
+			return "Escaped"
+		_:
+			push_error("Unknown turn state")
+			return "Unknown State"
+
+func set_player_turn_state(turn_state: int) -> void:
+	current_turn_state = turn_state
+	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
+
 
 
 func set_current_turn(turn_number: int) -> void:
