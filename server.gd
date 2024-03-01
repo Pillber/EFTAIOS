@@ -83,7 +83,6 @@ func _ready() -> void:
 	server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
 	change_state(players[current_player_turn], TurnState.MOVING)
 
-
 @rpc("reliable", "call_local")
 func setup_player(num_moves: int, spawn: Vector2i, is_alien: bool) -> void:
 	board.zone.player_num_moves = num_moves
@@ -93,7 +92,6 @@ func setup_player(num_moves: int, spawn: Vector2i, is_alien: bool) -> void:
 @rpc("reliable", "call_local")
 func init_player_list(list) -> void:
 	board.init_player_list(list)
-
 
 func _on_end_game() -> void:
 	set_process(false)
@@ -135,27 +133,6 @@ enum TurnState {
 }
 
 var total_turns: int = 1
-
-""" Example State Machine
-	state_one()
-	
-func _input(event):
-	if event.is_action_pressed("left_click"):
-		emit_signal("next_state")
-
-signal next_state()
-
-func state_one():
-	print("state one")
-	await next_state
-	state_two()
-
-func state_two():
-	print("state two")
-	for i in range(60):
-		await get_tree().physics_frame
-	state_one()
-"""
 
 var queried_movement: bool = false
 var queried_noise: bool = false

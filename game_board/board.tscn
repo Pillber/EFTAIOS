@@ -196,6 +196,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_gvere")
 
 [node name="TurnGrid" type="GridContainer" parent="CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel"]
+visible = false
 layout_mode = 2
 columns = 10
 

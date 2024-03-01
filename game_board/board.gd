@@ -84,7 +84,6 @@ func set_player_turn_state(turn_state: int) -> void:
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
 
 
-
 func set_current_turn(turn_number: int) -> void:
 	current_turn_number = turn_number
 	$CanvasLayer/UI/PlayerList/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
