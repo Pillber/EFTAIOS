@@ -73,12 +73,12 @@ func _ready() -> void:
 		player.set_team(team, spawn)
 		setup_player.rpc_id(player.id, player.num_moves, spawn, player.team == Team.ALIEN)
 		i += 1
-		
-		player_id_list.append(player.id)
 	
 	# randomize???
 	players.shuffle()
-	player_id_list.shuffle()
+	
+	for player in players:
+		player_id_list.append(player.id)
 	
 	init_player_list.rpc(player_id_list)
 
