@@ -61,8 +61,6 @@ func _ready() -> void:
 	for player in Global.players:
 		players.append(Player.new(player))
 	
-	# randomize???
-	players.shuffle()
 	
 	var num_aliens = ceil(players.size() / 2.0)
 	
@@ -77,6 +75,10 @@ func _ready() -> void:
 		i += 1
 		
 		player_id_list.append(player.id)
+	
+	# randomize???
+	players.shuffle()
+	player_id_list.shuffle()
 	
 	init_player_list.rpc(player_id_list)
 
