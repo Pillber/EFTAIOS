@@ -13,6 +13,7 @@ class Player:
 	var num_moves: int = 1
 	var moves: Array[Vector2i] = []
 	var team: Team = Team.HUMAN
+	var items: Array = []
 	
 	var current_state: TurnState = TurnState.WAITING
 	
@@ -37,6 +38,11 @@ class Player:
 		else: # you are an alien
 			current_state = TurnState.DEAD
 			num_moves = 0
+	
+	func can_attack() -> bool:
+		if team == Team.ALIEN: return true
+		#if items.contains(attack): return true
+		return false
 #endregion
 
 #region Initialization
@@ -200,7 +206,7 @@ func _process(_delta) -> void:
 		TurnState.ATTACKING:
 			if not queried_attack:
 				queried_attack = true
-				if current_player.team == Team.ALIEN:
+				if current_player.can_attack():
 					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ATTACK)
 				else:
 					queried_attack = false
