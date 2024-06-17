@@ -15,7 +15,7 @@ class Player:
 	var team: Team = Team.HUMAN
 	var items: Array = []
 	
-	var current_state: TurnState = TurnState.WAITING
+	var current_state: Global.TurnState = Global.TurnState.WAITING
 	
 	func _init(player_id: int):
 		self.id = player_id
@@ -34,15 +34,32 @@ class Player:
 			team = Team.ALIEN
 			num_moves = 2
 			position = alien_spawn
-			# update num_moves on related player's board state
 		else: # you are an alien
-			current_state = TurnState.DEAD
+			current_state = Global.TurnState.DEAD
 			num_moves = 0
+			
+	func check_items(alien_case: bool, item_to_check: ItemResource) -> bool:
+		if team == Team.ALIEN: return alien_case
+		for item in items:
+			if item == item_to_check:
+				return true
+		return false
 	
 	func can_attack() -> bool:
-		if team == Team.ALIEN: return true
-		#if items.contains(attack): return true
-		return false
+		return check_items(true, Item.ATTACK_ITEM)
+	
+	func can_defend() -> bool:
+		return check_items(false, Item.DEFENSE_ITEM)
+	
+	func can_clone() -> bool:
+		return check_items(false, Item.CLONE_ITEM)
+	
+	func remove_item(item_to_remove: ItemResource):
+		for item in items:
+			if item == item_to_remove:
+				items.erase(item)
+				break
+		
 #endregion
 
 #region Initialization
@@ -68,7 +85,8 @@ func _ready() -> void:
 		players.append(Player.new(player))
 	
 	
-	var num_aliens = ceil(players.size() / 2.0)
+	#var num_aliens = ceil(players.size() / 2.0)
+	var num_aliens = 0
 	
 	var player_id_list = []
 	
@@ -89,7 +107,7 @@ func _ready() -> void:
 	init_player_list.rpc(player_id_list)
 
 	server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
-	change_state(players[current_player_turn], TurnState.MOVING)
+	change_state(players[current_player_turn], Global.TurnState.MOVING)
 
 @rpc("reliable", "call_local")
 func setup_player(num_moves: int, spawn: Vector2i, is_alien: bool) -> void:
@@ -118,7 +136,7 @@ func end_quit_game() -> void:
 func _on_player_disconnected(player_id: int) -> void:
 	for player in players:
 		if player.id == player_id:
-			player.current_state = TurnState.DISCONNECTED
+			player.current_state = Global.TurnState.DISCONNECTED
 	queried_movement = false
 	queried_noise = false
 	queried_attack = false
@@ -127,18 +145,6 @@ func _on_player_disconnected(player_id: int) -> void:
 #endregion
 
 #region Game Logic
-
-enum TurnState {
-	WAITING = 0b0,
-	MOVING = 0b1,
-	MAKING_NOISE = 0b10,
-	ATTACKING = 0b100,
-	ENDING_TURN = 0b1000,
-	DEAD = 0b10000,
-	ESCAPED = 0b100000,
-	DISCONNECTED = 0b1000000,
-	USING_ITEM,
-}
 
 var total_turns: int = 1
 
@@ -150,11 +156,11 @@ func _process(_delta) -> void:
 	var current_player = players[current_player_turn]
 	
 	match current_player.current_state:
-		TurnState.MOVING:
+		Global.TurnState.MOVING:
 			if not queried_movement:
 				queried_movement = true
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_MOVEMENT)
-		TurnState.MAKING_NOISE:
+		Global.TurnState.MAKING_NOISE:
 			if not queried_noise:
 				queried_noise = true
 				# get tile at player position
@@ -170,7 +176,7 @@ func _process(_delta) -> void:
 						Decks.CardType.ESCAPE_SUCCESS:
 							escape_succeed = true
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(current_player.id) + "] escaped!"})
-							change_state(current_player, TurnState.ESCAPED)
+							change_state(current_player, Global.TurnState.ESCAPED)
 							if check_all_human_dead_or_escaped():
 								server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans escaped! Escaped Humans win!"})
 								emit_signal("end_game")
@@ -186,7 +192,8 @@ func _process(_delta) -> void:
 					queried_noise = false
 				elif board.zone.is_dangerous_tile(current_player.position):
 					#query deck about noise type
-					match Decks.noise_deck.draw_card().type:
+					var card = Decks.noise_deck.draw_card()
+					match card.type:
 						Decks.CardType.NOISE_ANY_SECTOR:
 							server_call.rpc_id(current_player.id, ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Make a noise at any sector."})
 							server_call.rpc_id(current_player.id, ServerMessage.PLAYER_NOISE_ANY_SECTOR)
@@ -194,37 +201,34 @@ func _process(_delta) -> void:
 							server_call.rpc_id(current_player.id, ServerMessage.PLAYER_NOISE_THIS_SECTOR)
 						_:
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Silence in all sectors."})
+							if card.item:
+								current_player.items.append(card.item)
+								server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ADD_ITEM, {"item":card.item})
 							queried_noise = false
-							change_state(current_player, TurnState.ATTACKING)
+							change_state(current_player, Global.TurnState.ATTACKING)
 				else:
 					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message" : "Silent sector."})
 					queried_noise = false
-					change_state(current_player, TurnState.ATTACKING)
-		TurnState.USING_ITEM:
+					change_state(current_player, Global.TurnState.ATTACKING)
+		Global.TurnState.USING_ITEM:
 			push_warning("TurnState.USING_ITEM: Not implemented yet!")
 			pass
-		TurnState.ATTACKING:
+		Global.TurnState.ATTACKING:
 			if not queried_attack:
 				queried_attack = true
 				if current_player.can_attack():
 					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ATTACK)
 				else:
 					queried_attack = false
-					change_state(current_player, TurnState.ENDING_TURN)
-		TurnState.ENDING_TURN:
+					change_state(current_player, Global.TurnState.ENDING_TURN)
+		Global.TurnState.ENDING_TURN:
 			if not queried_end_turn:
 				queried_end_turn = true
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_END_TURN)
-		TurnState.WAITING:
+		Global.TurnState.WAITING:
 			return
-		TurnState.DEAD:
-			# skip turn if dead
-			change_turn()
-		TurnState.ESCAPED:
-			# skip turn if escaped
-			change_turn()
-		TurnState.DISCONNECTED:
-			# skip turn if disconnected
+		[Global.TurnState.DEAD, Global.TurnState.ESCAPED, Global.TurnState.DISCONNECTED]:
+			# skip turn if dead, escaped, or disconnected
 			change_turn()
 
 
@@ -240,12 +244,12 @@ func change_turn() -> void:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Turn limit reached: Aliens Win!"})
 		emit_signal("end_game")
 	
-	if not players[current_player_turn].current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.DISCONNECTED]:
+	if not players[current_player_turn].current_state in [Global.TurnState.DEAD, Global.TurnState.ESCAPED, Global.TurnState.DISCONNECTED]:
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_PLAYER_TURN, {"player":players[current_player_turn].id})
-		change_state(players[current_player_turn], TurnState.MOVING)
+		change_state(players[current_player_turn], Global.TurnState.MOVING)
 
 
-func change_state(current_player: Player, new_state: TurnState) -> void:
+func change_state(current_player: Player, new_state: Global.TurnState) -> void:
 	current_player.current_state = new_state
 	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":new_state})
 
@@ -264,6 +268,8 @@ enum ServerMessage {
 	PLAYER_END_TURN,
 	PLAYER_USE_ESCAPE_POD,
 	PLAYER_SET_TURN_STATE,
+	PLAYER_ADD_ITEM,
+	PLAYER_REMOVE_ITEM,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
 	SERVER_BROADCAST_NEXT_TURN,
@@ -309,6 +315,10 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			board.set_player_turn(payload["player"])
 		ServerMessage.SERVER_BROADCAST_NEXT_TURN:
 			board.set_current_turn(payload["turn_number"])
+		ServerMessage.PLAYER_ADD_ITEM:
+			board.add_item(payload["item"])
+		ServerMessage.PLAYER_REMOVE_ITEM:
+			board.remove_item(payload["item"])
 
 # called from client onto server. server logic to use client responses
 @rpc("any_peer", "reliable", "call_local")
@@ -319,19 +329,33 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			current_player.move_to(payload["new_position"])
 			server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, payload)
 			queried_movement = false
-			change_state(current_player, TurnState.MAKING_NOISE)
+			change_state(current_player, Global.TurnState.MAKING_NOISE)
 		ClientMessage.PLAYER_RETURN_NOISE:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Noise at " + board.zone.tile_to_sector(payload["noise_position"]) + "."})
 			queried_noise = false
-			change_state(current_player, TurnState.ATTACKING)
+			change_state(current_player, Global.TurnState.ATTACKING)
 		ClientMessage.PLAYER_RETURN_ATTACK:
 			if payload["should_attack"]:
 				#attack
-				server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] attacking at " + board.zone.tile_to_sector(current_player.position) + "."})
+				server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] attacks at " + board.zone.tile_to_sector(current_player.position) + "."})
+				# a human with attack card
+				if current_player.team == Team.HUMAN:
+					current_player.remove_item(Item.ATTACK_ITEM)
+					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item":Item.ATTACK_ITEM})
 				for player in players:
 					if player == current_player:
 						continue
 					if player.position == current_player.position:
+						# defend card
+						if player.can_defend():
+							current_player.remove_item(Item.DEFENSE_ITEM)
+							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] defends against the attack!"})
+						# clone card
+						if player.can_clone():
+							current_player.remove_item(Item.CLONE_ITEM)
+							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] clones themselves!"})
+							player.position = board.zone.human_spawn
+							server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
 						# update attacker's moves if they kill a human
 						if current_player.team == Team.ALIEN and player.team == Team.HUMAN:
 							var new_num_moves = min(current_player.num_moves + 1, 3)
@@ -339,7 +363,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 							update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
 						# have the attacked player die
 						player.die(board.zone.alien_spawn)
-						server_call.rpc_id(player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":TurnState.DEAD})
+						server_call.rpc_id(player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":Global.TurnState.DEAD})
 						# check for all humans dead, game over if so
 						if check_all_human_dead_or_escaped():
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans dead! Aliens win!"})
@@ -349,18 +373,18 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
 						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
 			queried_attack = false
-			change_state(current_player, TurnState.ENDING_TURN)
+			change_state(current_player, Global.TurnState.ENDING_TURN)
 		ClientMessage.PLAYER_END_TURN:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] ends their turn."})
 			queried_end_turn = false
-			change_state(current_player, TurnState.WAITING)
+			change_state(current_player, Global.TurnState.WAITING)
 			
 			change_turn()
 
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:
 		if player.team == Team.HUMAN:
-			if player.current_state in [TurnState.DEAD, TurnState.ESCAPED, TurnState.DISCONNECTED]:
+			if player.current_state in [Global.TurnState.DEAD, Global.TurnState.ESCAPED, Global.TurnState.DISCONNECTED]:
 				continue
 			else:
 				return false

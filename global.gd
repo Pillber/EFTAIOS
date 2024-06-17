@@ -26,6 +26,9 @@ func _unhandled_input(event):
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE else Input.MOUSE_MODE_VISIBLE
 
 
+#region Networking
+
+
 func add_self_to_players() -> void:
 	players[multiplayer.get_unique_id()] = {
 			"steam_id" : steam_id,
@@ -69,3 +72,16 @@ func _on_connected_to_server() -> void:
 
 func get_username(player_id: int) -> String:
 	return players[player_id]["username"]
+#endregion
+
+enum TurnState {
+	WAITING,
+	MOVING,
+	MAKING_NOISE,
+	ATTACKING,
+	ENDING_TURN,
+	DEAD,
+	ESCAPED,
+	DISCONNECTED,
+	USING_ITEM,
+}

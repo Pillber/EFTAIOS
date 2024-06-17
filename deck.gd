@@ -1,5 +1,7 @@
 extends Node
 
+const ATTACK_ITEM = preload("res://items/attack_item.tres")
+
 enum CardType {
 	# noise deck
 	NOISE_THIS_SECTOR,
@@ -28,12 +30,12 @@ class Card:
 	
 	6 Silence (no item)
 	17 Silence (with item)
-		2 Attack - TurnState.ATTACKING
+		2 Attack - TurnState.ATTACKING (DONE)
 		3 Adrenaline - TurnState.MOVING
 		3 Sedatives - TurnState.MOVING 
 		1 Cat - TurnState.MAKING_NOISE
-		1 Defense - When Attacked
-		1 Clone - When Attacked
+		1 Defense - When Attacked (DONE)
+		1 Clone - When Attacked (DONE)
 		1 Teleport - Any Time
 		2 Spotlight - Any Time
 		1 Sensor - Any Time
@@ -82,9 +84,9 @@ var noise_deck_params = [
 	},
 	{
 		"type" : CardType.SILENT_SECTOR,
-		"count" : 2,
+		"count" : 100,
 		"discard" : false,
-		"item" : "attack"
+		"item" : ATTACK_ITEM
 	},
 ]
 

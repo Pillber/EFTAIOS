@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
+[ext_resource type="Script" path="res://deck.gd" id="2_c8bdp"]
 [ext_resource type="PackedScene" uid="uid://bcwq1l1rtg0rx" path="res://game_board/confirmation_panel.tscn" id="3_abcto"]
-[ext_resource type="PackedScene" uid="uid://ckqktut0x5rsr" path="res://items/item.tscn" id="5_wlnmy"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]
@@ -44,6 +44,7 @@ script = ExtResource("1_rfakm")
 
 [node name="Background" type="CanvasLayer" parent="."]
 layer = -1
+script = ExtResource("2_c8bdp")
 
 [node name="Color" type="ColorRect" parent="Background"]
 anchors_preset = 15
@@ -153,15 +154,12 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_q87op")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/ItemList/ItemsPanel"]
-layout_mode = 2
-
-[node name="ItemsLabel" type="Label" parent="CanvasLayer/UI/ItemList/ItemsPanel/VBoxContainer"]
+[node name="ItemsLabel" type="Label" parent="CanvasLayer/UI/ItemList/ItemsPanel"]
 layout_mode = 2
 text = "Items"
 horizontal_alignment = 1
 
-[node name="Item" parent="CanvasLayer/UI/ItemList/ItemsPanel/VBoxContainer" instance=ExtResource("5_wlnmy")]
+[node name="Items" type="VBoxContainer" parent="CanvasLayer/UI/ItemList"]
 layout_mode = 2
 
 [node name="MessageContainer" type="VBoxContainer" parent="CanvasLayer/UI"]

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://vnmw11pgoy1g"]
+
+[ext_resource type="Script" path="res://items/item_resource.gd" id="1_fldtx"]
+
+[resource]
+script = ExtResource("1_fldtx")
+name = "Defense"
+useable_turn_states = Array[int]([])

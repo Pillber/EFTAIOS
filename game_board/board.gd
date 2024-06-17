@@ -3,6 +3,7 @@ extends Node2D
 const MESSAGE = preload("res://game_board/message.tscn")
 const PLAYER_ITEM = preload("res://game_board/player_item.tscn")
 const TURN_ITEM = preload("res://game_board/turn_item.tscn")
+const ITEM = preload("res://items/item.tscn")
 
 @onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
@@ -60,27 +61,14 @@ func set_player_turn(player_id: int) -> void:
 
 
 func turn_state_to_string(turn_state: int) -> String:
-	match turn_state:
-		0b0:
-			return "Waiting"
-		0b1:
-			return "Moving"
-		0b10:
-			return "Making Noise"
-		0b100:
-			return "Attacking"
-		0b1000:
-			return "Ending Turn"
-		0b10000:
-			return "Dead (lol)"
-		0b100000:
-			return "Escaped"
-		_:
-			push_error("Unknown turn state")
-			return "Unknown State"
+	const turn_state_strings = ["Waiting", "Moving", "Making Noise", "Attacking", "Ending Turn", "Dead (lol)", "Escaped"]
+	return turn_state_strings[turn_state]
+
 
 func set_player_turn_state(turn_state: int) -> void:
 	current_turn_state = turn_state
+	for item in $CanvasLayer/UI/ItemList/Items.get_children():
+		item.update_useable(turn_state)
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
 
 
@@ -101,6 +89,26 @@ func make_message(message: String) -> Control:
 	var panel = MESSAGE.instantiate()
 	panel.get_node("Panel/Text").text = message
 	return panel
+
+
+func add_item(item: ItemResource) -> void:
+	print("Adding item: ", item.name)
+	var new_item = ITEM.instantiate()
+	$CanvasLayer/UI/ItemList/Items.add_child(new_item)
+	new_item.set_resource(item)
+
+
+func remove_item(item: ItemResource) -> void:
+	print("Removing item: ", item.name)
+	for child in $CanvasLayer/UI/ItemList/Items.get_children():
+		if child.resource == Item.ATTACK_ITEM:
+			$CanvasLayer/UI/ItemList/Items.remove_child(child)
+			break
+
+
+func _on_use_item(item: ItemResource):
+	print("using item!")
+
 
 #region Player Actions
 func get_move() -> Vector2i:
