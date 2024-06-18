@@ -351,14 +351,18 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 					if player.position == current_player.position:
 						# defend card
 						if player.can_defend():
-							current_player.remove_item(Item.DEFENSE_ITEM)
+							player.remove_item(Item.DEFENSE_ITEM)
+							server_call.rpc_id(player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item":inst_to_dict(Item.DEFENSE_ITEM)})
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] defends against the attack!"})
+							continue
 						# clone card
 						if player.can_clone():
-							current_player.remove_item(Item.CLONE_ITEM)
+							player.remove_item(Item.CLONE_ITEM)
+							server_call.rpc_id(player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item":inst_to_dict(Item.CLONE_ITEM)})
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] clones themselves!"})
 							player.position = board.zone.human_spawn
 							server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
+							continue
 						# update attacker's moves if they kill a human
 						if current_player.team == Team.ALIEN and player.team == Team.HUMAN:
 							var new_num_moves = min(current_player.num_moves + 1, 3)
