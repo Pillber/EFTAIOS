@@ -1,7 +1,5 @@
 extends Node
 
-const ATTACK_ITEM = preload("res://items/attack_item.tres")
-
 enum CardType {
 	# noise deck
 	NOISE_THIS_SECTOR,
@@ -68,25 +66,37 @@ class Card:
 var noise_deck_params = [
 	{
 		"type" : CardType.NOISE_THIS_SECTOR,
-		"count" : 27,
+		"count" : 0,
 		"discard" : true,
 	},
 	{
 		"type" : CardType.NOISE_ANY_SECTOR,
-		"count" : 27,
+		"count" : 0,
 		"discard" : true,
 	},
 	{
 		"type" : CardType.SILENT_SECTOR,
-		"count" : 6,
+		"count" : 0,
 		"discard" : false,
 		"item" : null
 	},
 	{
 		"type" : CardType.SILENT_SECTOR,
-		"count" : 100,
+		"count" : 10,
 		"discard" : false,
-		"item" : ATTACK_ITEM
+		"item" : Item.ATTACK_ITEM
+	},
+	{
+		"type" : CardType.SILENT_SECTOR,
+		"count" : 10,
+		"discard" : false,
+		"item" : Item.CLONE_ITEM
+	},
+	{
+		"type" : CardType.SILENT_SECTOR,
+		"count" : 10,
+		"discard" : false,
+		"item" : Item.DEFENSE_ITEM
 	},
 ]
 
