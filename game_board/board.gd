@@ -91,17 +91,19 @@ func make_message(message: String) -> Control:
 	return panel
 
 
-func add_item(item: ItemResource) -> void:
+func add_item(item_dict: Dictionary) -> void:
+	var item = dict_to_inst(item_dict)
 	print("Adding item: ", item.name)
 	var new_item = ITEM.instantiate()
 	$CanvasLayer/UI/ItemList/Items.add_child(new_item)
 	new_item.set_resource(item)
 
 
-func remove_item(item: ItemResource) -> void:
+func remove_item(item_dict: Dictionary) -> void:
+	var item = dict_to_inst(item_dict)
 	print("Removing item: ", item.name)
 	for child in $CanvasLayer/UI/ItemList/Items.get_children():
-		if child.resource == Item.ATTACK_ITEM:
+		if child.resource.name == item.name:
 			$CanvasLayer/UI/ItemList/Items.remove_child(child)
 			break
 

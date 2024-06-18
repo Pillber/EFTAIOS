@@ -70,6 +70,9 @@ var current_player_turn: int = 0
 
 signal end_game()
 
+func add_board(p_board) -> void:
+	board = board
+
 func _ready() -> void:
 	set_process(multiplayer.is_server())
 	set_physics_process(multiplayer.is_server())
@@ -203,7 +206,7 @@ func _process(_delta) -> void:
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Silence in all sectors."})
 							if card.item:
 								current_player.items.append(card.item)
-								server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ADD_ITEM, {"item":card.item})
+								server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ADD_ITEM, {"item":inst_to_dict(card.item)})
 							queried_noise = false
 							change_state(current_player, Global.TurnState.ATTACKING)
 				else:
@@ -341,7 +344,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 				# a human with attack card
 				if current_player.team == Team.HUMAN:
 					current_player.remove_item(Item.ATTACK_ITEM)
-					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item":Item.ATTACK_ITEM})
+					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item":inst_to_dict(Item.ATTACK_ITEM)})
 				for player in players:
 					if player == current_player:
 						continue
