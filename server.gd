@@ -15,6 +15,8 @@ class Player:
 	var team: Team = Team.HUMAN
 	var items: Array = []
 	
+	var sedated: bool = false
+	
 	var current_state: Global.TurnState = Global.TurnState.WAITING
 	
 	func _init(player_id: int):
@@ -54,6 +56,15 @@ class Player:
 	func can_clone() -> bool:
 		return check_items(false, Item.CLONE_ITEM)
 	
+	func can_cat() -> bool:
+		return check_items(false, Item.CAT_ITEM)
+	
+	func can_adrenaline() -> bool:
+		return check_items(false, Item.ADRENALINE_ITEM)
+	
+	func can_sedatives() -> bool:
+		return check_items(false, Item.SEDATIVES_ITEM)
+	
 	func remove_item(item_to_remove: ItemResource):
 		for item in items:
 			if item == item_to_remove:
@@ -71,7 +82,8 @@ var current_player_turn: int = 0
 signal end_game()
 
 func add_board(p_board) -> void:
-	board = board
+	board = p_board
+	board.using_item.connect(_on_player_use_item)
 
 func _ready() -> void:
 	set_process(multiplayer.is_server())
@@ -162,6 +174,26 @@ func _process(_delta) -> void:
 		Global.TurnState.MOVING:
 			if not queried_movement:
 				queried_movement = true
+				#check for moving items, prompt action first if held item
+				if await player_check_item(current_player, current_player.can_adrenaline, Item.ADRENALINE_ITEM):
+					# save player so no race conditions on ending move state
+					var player = current_player
+					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(player.id) + "] uses Adrenaline!"})
+					player.remove_item(Item.ADRENALINE_ITEM)
+					server_call.rpc_id(player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(Item.ADRENALINE_ITEM)})
+					player.num_moves += 1
+					update_num_moves.rpc_id(player.id, player.num_moves, player.position)
+					server_call.rpc_id(player.id, ServerMessage.PLAYER_MOVEMENT)
+					await end_state
+					player.num_moves -= 1
+					update_num_moves.rpc_id(player.id, player.num_moves, player.position)
+					# exit early, so no extra move
+					return
+				if await player_check_item(current_player, current_player.can_sedatives, Item.SEDATIVES_ITEM):
+					current_player.sedated = true
+					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Sedatives!"})
+					current_player.remove_item(Item.SEDATIVES_ITEM)
+					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(Item.SEDATIVES_ITEM)})
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_MOVEMENT)
 		Global.TurnState.MAKING_NOISE:
 			if not queried_noise:
@@ -193,7 +225,28 @@ func _process(_delta) -> void:
 						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"No more Escape Pods! Aliens win!"})
 						emit_signal("end_game")
 					queried_noise = false
+				elif current_player.sedated:
+					current_player.sedated = false
+					queried_noise = false
+					change_state(current_player, Global.TurnState.ATTACKING)
 				elif board.zone.is_dangerous_tile(current_player.position):
+					#check for cat item, prompt use if held
+					if await player_check_item(current_player, current_player.can_cat, Item.CAT_ITEM):
+						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Cat!"})
+						var card = Decks.noise_deck.draw_card(true)
+						var force_current_position = card.type == Decks.CardType.NOISE_THIS_SECTOR
+						
+						server_call.rpc_id(current_player.id, ServerMessage.PLAYER_USE_CAT, {"force_current_position": force_current_position})
+						await finished_prompt_item
+						
+						current_player.remove_item(Item.CAT_ITEM)
+						server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(Item.CAT_ITEM)})
+						
+						queried_noise = false
+						change_state(current_player, Global.TurnState.ATTACKING)
+						#end noise state early
+						return
+						#fall through if not using cat
 					#query deck about noise type
 					var card = Decks.noise_deck.draw_card()
 					match card.type:
@@ -235,6 +288,15 @@ func _process(_delta) -> void:
 			change_turn()
 
 
+func player_check_item(current_player: Player, check_function: Callable, item: ItemResource) -> bool:
+	if check_function.call():
+		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_PROMPT_ITEM, {"item": inst_to_dict(item)})
+		var using_item = await finished_prompt_item
+		if using_item:
+			print("using ", item.name)
+		return using_item
+	return false
+
 func change_turn() -> void:
 	# update current player, and start their turn
 	var previous_player_turn = current_player_turn
@@ -262,6 +324,12 @@ func update_num_moves(new_num_moves: int, player_position: Vector2i) -> void:
 	board.zone.player_num_moves = new_num_moves
 	board.zone.update_possible_moves(player_position, new_num_moves)
 
+
+func _on_player_use_item(item):
+	# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
+	pass
+
+
 enum ServerMessage {
 	PLAYER_MOVEMENT,
 	PLAYER_NOISE_THIS_SECTOR,
@@ -273,6 +341,8 @@ enum ServerMessage {
 	PLAYER_SET_TURN_STATE,
 	PLAYER_ADD_ITEM,
 	PLAYER_REMOVE_ITEM,
+	PLAYER_PROMPT_ITEM,
+	PLAYER_USE_CAT,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
 	SERVER_BROADCAST_NEXT_TURN,
@@ -283,6 +353,7 @@ enum ClientMessage {
 	PLAYER_RETURN_NOISE,
 	PLAYER_RETURN_ATTACK,
 	PLAYER_END_TURN,
+	PLAYER_USE_ITEM,
 }
 
 const SERVER: int = 1
@@ -319,9 +390,20 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 		ServerMessage.SERVER_BROADCAST_NEXT_TURN:
 			board.set_current_turn(payload["turn_number"])
 		ServerMessage.PLAYER_ADD_ITEM:
-			board.add_item(payload["item"])
+			board.add_item(dict_to_inst(payload["item"]))
 		ServerMessage.PLAYER_REMOVE_ITEM:
-			board.remove_item(payload["item"])
+			board.remove_item(dict_to_inst(payload["item"]))
+		ServerMessage.PLAYER_PROMPT_ITEM:
+			var use_item = await board.prompt_item(dict_to_inst(payload["item"]))
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"to_use": use_item})
+		ServerMessage.PLAYER_USE_CAT:
+			var sectors = await board.use_cat(payload["force_current_position"])
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[0], "end_state": false})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[1], "end_state": true})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"to_use": null})
+
+signal finished_prompt_item(use_item)
+signal end_state()
 
 # called from client onto server. server logic to use client responses
 @rpc("any_peer", "reliable", "call_local")
@@ -331,12 +413,14 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 		ClientMessage.PLAYER_RETURN_MOVEMENT:
 			current_player.move_to(payload["new_position"])
 			server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, payload)
+			end_state.emit()
 			queried_movement = false
 			change_state(current_player, Global.TurnState.MAKING_NOISE)
 		ClientMessage.PLAYER_RETURN_NOISE:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Noise at " + board.zone.tile_to_sector(payload["noise_position"]) + "."})
-			queried_noise = false
-			change_state(current_player, Global.TurnState.ATTACKING)
+			if payload["end_state"]:
+				queried_noise = false
+				change_state(current_player, Global.TurnState.ATTACKING)
 		ClientMessage.PLAYER_RETURN_ATTACK:
 			if payload["should_attack"]:
 				#attack
@@ -387,6 +471,9 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			change_state(current_player, Global.TurnState.WAITING)
 			
 			change_turn()
+		ClientMessage.PLAYER_USE_ITEM:
+			finished_prompt_item.emit(payload["to_use"])
+			
 
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:

@@ -15,6 +15,7 @@ var current_turn_number: int = 1
 var current_turn_state: int = 0
 
 signal tile_selected(tile)
+signal using_item(item)
 
 func _ready() -> void:
 	$Camera2D/Stars.show()
@@ -91,17 +92,13 @@ func make_message(message: String) -> Control:
 	return panel
 
 
-func add_item(item_dict: Dictionary) -> void:
-	var item = dict_to_inst(item_dict)
-	print("Adding item: ", item.name)
+func add_item(item: ItemResource) -> void:
 	var new_item = ITEM.instantiate()
 	$CanvasLayer/UI/ItemList/Items.add_child(new_item)
 	new_item.set_resource(item)
 
 
-func remove_item(item_dict: Dictionary) -> void:
-	var item = dict_to_inst(item_dict)
-	print("Removing item: ", item.name)
+func remove_item(item: ItemResource) -> void:
 	for child in $CanvasLayer/UI/ItemList/Items.get_children():
 		if child.resource.name == item.name:
 			$CanvasLayer/UI/ItemList/Items.remove_child(child)
@@ -110,7 +107,34 @@ func remove_item(item_dict: Dictionary) -> void:
 
 func _on_use_item(item: ItemResource):
 	print("using item!")
+	using_item.emit(item)
 
+
+func prompt_item(item: ItemResource):
+	var prompt_text = "Would you like to use your " + item.name + " item?:"
+	confirmation_popup.pop_up(prompt_text)
+	var use_item = await confirmation_popup.finished
+	return use_item
+
+
+func use_cat(force_current_position: bool) -> Array[Vector2i]:
+	var first_sector
+	var second_sector
+	if force_current_position:
+		confirmation_popup.pop_up("Your current position will be revealed. Pick only one sector.", "", false)
+		await confirmation_popup.finished
+		first_sector = await make_noise_any_sector()
+		second_sector = zone.player_position
+	else:
+		confirmation_popup.pop_up("Your current position will not be revealed. Pick two sectors.", "", false)
+		await confirmation_popup.finished
+		first_sector = await make_noise_any_sector()
+		second_sector = await make_noise_any_sector()
+	
+	var result: Array[Vector2i] = [first_sector, second_sector]
+	result.shuffle()
+	
+	return result
 
 #region Player Actions
 func get_move() -> Vector2i:

@@ -29,11 +29,11 @@ class Card:
 	6 Silence (no item)
 	17 Silence (with item)
 		2 Attack - TurnState.ATTACKING (DONE)
-		3 Adrenaline - TurnState.MOVING
-		3 Sedatives - TurnState.MOVING 
-		1 Cat - TurnState.MAKING_NOISE
 		1 Defense - When Attacked (DONE)
 		1 Clone - When Attacked (DONE)
+		1 Cat - TurnState.MAKING_NOISE (DONE)
+		3 Adrenaline - TurnState.MOVING (DONE)
+		3 Sedatives - TurnState.MOVING 
 		1 Teleport - Any Time
 		2 Spotlight - Any Time
 		1 Sensor - Any Time
@@ -63,56 +63,8 @@ class Card:
 """
 
 
-var noise_deck_params = [
-	{
-		"type" : CardType.NOISE_THIS_SECTOR,
-		"count" : 0,
-		"discard" : true,
-	},
-	{
-		"type" : CardType.NOISE_ANY_SECTOR,
-		"count" : 0,
-		"discard" : true,
-	},
-	{
-		"type" : CardType.SILENT_SECTOR,
-		"count" : 0,
-		"discard" : false,
-		"item" : null
-	},
-	{
-		"type" : CardType.SILENT_SECTOR,
-		"count" : 10,
-		"discard" : false,
-		"item" : Item.ATTACK_ITEM
-	},
-	{
-		"type" : CardType.SILENT_SECTOR,
-		"count" : 10,
-		"discard" : false,
-		"item" : Item.CLONE_ITEM
-	},
-	{
-		"type" : CardType.SILENT_SECTOR,
-		"count" : 10,
-		"discard" : false,
-		"item" : Item.DEFENSE_ITEM
-	},
-]
-
-var escape_deck_params = [
-	{
-		"type" : CardType.ESCAPE_SUCCESS,
-		"count" : 4,
-		"discard" : false,
-	},
-	{
-		"type" : CardType.ESCAPE_FAIL,
-		"count" : 1,
-		"discard" : false,
-	}
-	
-]
+var noise_deck_params = preload("res://decks/noise_deck.tres").deck
+var escape_deck_params = preload("res://decks/escape_deck.tres").deck
 
 class Deck:
 	
@@ -124,24 +76,19 @@ class Deck:
 		discard_pile = []
 		
 		for card_type in params:
-			var type = card_type["type"]
-			var count = card_type["count"]
-			var discard = card_type["discard"]
-			var item = card_type["item"] if card_type.has("item") else null
-			
-			for _i in range(count):
-				draw_pile.append(Card.new(type, discard, item))
+			for _i in range(card_type.count):
+				draw_pile.append(Card.new(card_type.type, card_type.discard, card_type.item))
 
 		draw_pile.shuffle()
 		
-	func draw_card() -> Card:
+	func draw_card(force_discard: bool = false) -> Card:
 		if discard_pile.size() != 0 and draw_pile.size() == 0:
 			print("shuffling")
 			draw_pile = discard_pile.duplicate()
 			discard_pile.clear()
 			draw_pile.shuffle()
 		var drawn_card = draw_pile.pop_back()
-		if drawn_card.discard:
+		if force_discard or drawn_card.discard:
 			discard_pile.append(drawn_card)
 		return drawn_card
 

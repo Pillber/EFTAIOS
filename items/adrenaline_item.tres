@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://chp0g80hlpjm8"]
+
+[ext_resource type="Script" path="res://items/item_resource.gd" id="1_wpjuh"]
+
+[resource]
+script = ExtResource("1_wpjuh")
+name = "Adrenaline"
+useable_turn_states = Array[int]([])

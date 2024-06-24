@@ -1,10 +1,24 @@
 extends Control
 class_name Item
 
+# attack items
 static var ATTACK_ITEM = preload("res://items/attack_item.tres")
+
+# defense items
 static var DEFENSE_ITEM = preload("res://items/defense_item.tres")
 static var CLONE_ITEM = preload("res://items/clone_item.tres")
+
+# noise items
+static var CAT_ITEM = preload("res://items/cat_item.tres")
+
+# moving items
+static var ADRENALINE_ITEM = preload("res://items/adrenaline_item.tres")
+static var SEDATIVES_ITEM = preload("res://items/sedatives_item.tres")
+
+# anytime items
 static var MUTATION_ITEM = preload("res://items/mutation_item.tres")
+static var SENSOR_ITEM = preload("res://items/sensor_item.tres")
+static var SPOTLIGHT_ITEM = preload("res://items/spotlight_item.tres")
 
 @onready var button = $Button
 

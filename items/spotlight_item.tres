@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://os5m55pdj17l"]
+
+[ext_resource type="Script" path="res://items/item_resource.gd" id="1_p730g"]
+
+[resource]
+script = ExtResource("1_p730g")
+name = "Spotlight"
+useable_turn_states = Array[int]([1, 2, 3, 4])

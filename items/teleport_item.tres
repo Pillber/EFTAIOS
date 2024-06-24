@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://bulmvdjm0osr1"]
+
+[ext_resource type="Script" path="res://items/item_resource.gd" id="1_ir0ic"]
+
+[resource]
+script = ExtResource("1_ir0ic")
+name = "Teleport"
+useable_turn_states = Array[int]([1, 2, 3, 4])

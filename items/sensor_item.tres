@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://c18djfw5itwal"]
+
+[ext_resource type="Script" path="res://items/item_resource.gd" id="1_h2nwa"]
+
+[resource]
+script = ExtResource("1_h2nwa")
+name = "Sensor"
+useable_turn_states = Array[int]([1, 2, 3, 4])
