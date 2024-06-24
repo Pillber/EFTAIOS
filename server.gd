@@ -345,6 +345,7 @@ func _on_player_use_item(item: ItemResource):
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Teleportation!"})
 		current_player.position = board.zone.human_spawn
 		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
+		# PLAYER CAN TELEPORT RIGHT BACK IF THEY USE ITEM WHILE CONFIRMING MOVEMENT
 	elif item.name == "Spotlight":
 		pass
 	elif item.name == "Sensor":
