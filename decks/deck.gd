@@ -34,7 +34,7 @@ class Card:
 		1 Cat - TurnState.MAKING_NOISE (DONE)
 		3 Adrenaline - TurnState.MOVING (DONE)
 		3 Sedatives - TurnState.MOVING  (DONE)
-		1 Mutation - Any Time
+		1 Mutation - Any Time (DONE)
 		1 Teleport - Any Time
 		2 Spotlight - Any Time
 		1 Sensor - Any Time

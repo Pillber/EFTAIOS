@@ -332,7 +332,7 @@ func _on_player_use_item(item: ItemResource):
 	current_player.remove_item(item)
 	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(item)})
 	if item.name == "Mutation":
-		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Mutation! They are now an Alien!"})
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Mutation!"})
 		current_player.team = Team.ALIEN
 		current_player.num_moves = 2
 		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_TEAM, {"is_alien": true})
@@ -342,7 +342,9 @@ func _on_player_use_item(item: ItemResource):
 			emit_signal("end_game")
 			return
 	elif item.name == "Teleport":
-		pass
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Teleportation!"})
+		current_player.position = board.zone.human_spawn
+		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
 	elif item.name == "Spotlight":
 		pass
 	elif item.name == "Sensor":
