@@ -68,9 +68,9 @@ func turn_state_to_string(turn_state: int) -> String:
 
 func set_player_turn_state(turn_state: int) -> void:
 	current_turn_state = turn_state
-	for item in $CanvasLayer/UI/ItemList/Items.get_children():
-		item.update_useable(turn_state)
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
+	for item in $CanvasLayer/UI/ItemList/Items.get_children():
+		item.update_useable(false if zone.is_alien else turn_state)
 
 
 func set_current_turn(turn_number: int) -> void:
@@ -96,6 +96,7 @@ func add_item(item: ItemResource) -> void:
 	var new_item = ITEM.instantiate()
 	$CanvasLayer/UI/ItemList/Items.add_child(new_item)
 	new_item.set_resource(item)
+	new_item.use_item.connect(_on_use_item)
 
 
 func remove_item(item: ItemResource) -> void:
@@ -106,7 +107,7 @@ func remove_item(item: ItemResource) -> void:
 
 
 func _on_use_item(item: ItemResource):
-	print("using item!")
+	print("board using item!")
 	using_item.emit(item)
 
 

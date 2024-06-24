@@ -26,5 +26,5 @@ func load_board() -> void:
 	board.zone = map
 	
 	var server = SERVER.instantiate()
-	server.board = board
+	server.add_board(board)
 	add_child(server)

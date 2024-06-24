@@ -233,8 +233,8 @@ func _process(_delta) -> void:
 					#check for cat item, prompt use if held
 					if await player_check_item(current_player, current_player.can_cat, Item.CAT_ITEM):
 						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Cat!"})
-						var card = Decks.noise_deck.draw_card(true)
-						var force_current_position = card.type == Decks.CardType.NOISE_THIS_SECTOR
+						var force_position_card = Decks.noise_deck.draw_card(true)
+						var force_current_position = force_position_card.type == Decks.CardType.NOISE_THIS_SECTOR
 						
 						server_call.rpc_id(current_player.id, ServerMessage.PLAYER_USE_CAT, {"force_current_position": force_current_position})
 						await finished_prompt_item
@@ -325,9 +325,30 @@ func update_num_moves(new_num_moves: int, player_position: Vector2i) -> void:
 	board.zone.update_possible_moves(player_position, new_num_moves)
 
 
-func _on_player_use_item(item):
+func _on_player_use_item(item: ItemResource):
 	# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
-	pass
+	print(item.name)
+	var current_player = players[current_player_turn]
+	current_player.remove_item(item)
+	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(item)})
+	if item.name == "Mutation":
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Mutation! They are now an Alien!"})
+		current_player.team = Team.ALIEN
+		current_player.num_moves = 2
+		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_TEAM, {"is_alien": true})
+		update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
+		if check_all_human_dead_or_escaped():
+			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"No more humans! Aliens win!"})
+			emit_signal("end_game")
+			return
+	elif item.name == "Teleport":
+		pass
+	elif item.name == "Spotlight":
+		pass
+	elif item.name == "Sensor":
+		pass
+	else:
+		push_error("You can't use this item, silly!")
 
 
 enum ServerMessage {
@@ -335,6 +356,7 @@ enum ServerMessage {
 	PLAYER_NOISE_THIS_SECTOR,
 	PLAYER_NOISE_ANY_SECTOR,
 	PLAYER_UPDATE_POSITION,
+	PLAYER_UPDATE_TEAM,
 	PLAYER_ATTACK,
 	PLAYER_END_TURN,
 	PLAYER_USE_ESCAPE_POD,
@@ -379,6 +401,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_END_TURN)
 		ServerMessage.PLAYER_UPDATE_POSITION:
 			board.zone.move_player(payload["new_position"])
+		ServerMessage.PLAYER_UPDATE_TEAM:
+			board.zone.is_alien = payload["is_alien"]
 		ServerMessage.PLAYER_USE_ESCAPE_POD:
 			board.zone.use_escape_pod(payload["position"], payload["succeed"])
 		ServerMessage.PLAYER_SET_TURN_STATE:
@@ -453,16 +477,18 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 							current_player.num_moves = new_num_moves
 							update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
 						# have the attacked player die
+						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
 						player.die(board.zone.alien_spawn)
 						server_call.rpc_id(player.id, ServerMessage.PLAYER_SET_TURN_STATE, {"turn_state":Global.TurnState.DEAD})
 						# check for all humans dead, game over if so
 						if check_all_human_dead_or_escaped():
 							server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"All humans dead! Aliens win!"})
 							emit_signal("end_game")
+							return
 						# update the state of the attacked player
 						update_num_moves.rpc_id(player.id, player.num_moves, player.position)
 						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position":player.position})
-						server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"Player [" + Global.get_username(player.id) + "] has been killed!"})
+						server_call.rpc_id(player.id, ServerMessage.PLAYER_UPDATE_TEAM, {"is_alien": player.team == Team.ALIEN})
 			queried_attack = false
 			change_state(current_player, Global.TurnState.ENDING_TURN)
 		ClientMessage.PLAYER_END_TURN:

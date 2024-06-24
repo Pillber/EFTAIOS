@@ -17,6 +17,7 @@ static var SEDATIVES_ITEM = preload("res://items/sedatives_item.tres")
 
 # anytime items
 static var MUTATION_ITEM = preload("res://items/mutation_item.tres")
+static var TELEPORT_ITEM = preload("res://items/teleport_item.tres")
 static var SENSOR_ITEM = preload("res://items/sensor_item.tres")
 static var SPOTLIGHT_ITEM = preload("res://items/spotlight_item.tres")
 
