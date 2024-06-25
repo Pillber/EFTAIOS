@@ -70,7 +70,7 @@ func set_player_turn_state(turn_state: int) -> void:
 	current_turn_state = turn_state
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
 	for item in $CanvasLayer/UI/ItemList/Items.get_children():
-		item.update_useable(false if zone.is_alien else turn_state)
+		item.update_useable(Global.TurnState.WAITING if zone.is_alien else turn_state)
 
 
 func set_current_turn(turn_number: int) -> void:

@@ -343,6 +343,9 @@ func mutate_player(current_player: Player) -> void:
 
 
 func _on_player_use_item(item: ItemResource):
+	client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"item": inst_to_dict(item)})
+
+func server_use_item(item: ItemResource) -> void:
 	# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
 	print(item.name)
 	var current_player = players[current_player_turn]
@@ -386,6 +389,7 @@ enum ClientMessage {
 	PLAYER_RETURN_NOISE,
 	PLAYER_RETURN_ATTACK,
 	PLAYER_END_TURN,
+	PLAYER_PROMPT_ITEM,
 	PLAYER_USE_ITEM,
 }
 
@@ -430,12 +434,12 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			board.remove_item(dict_to_inst(payload["item"]))
 		ServerMessage.PLAYER_PROMPT_ITEM:
 			var use_item = await board.prompt_item(dict_to_inst(payload["item"]))
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"to_use": use_item})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_PROMPT_ITEM, {"to_use": use_item})
 		ServerMessage.PLAYER_USE_CAT:
 			var sectors = await board.use_cat(payload["force_current_position"])
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[0], "end_state": false})
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[1], "end_state": true})
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"to_use": null})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_PROMPT_ITEM, {"to_use": null})
 
 signal finished_prompt_item(use_item)
 signal end_state()
@@ -508,8 +512,10 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			change_state(current_player, Global.TurnState.WAITING)
 			
 			change_turn()
-		ClientMessage.PLAYER_USE_ITEM:
+		ClientMessage.PLAYER_PROMPT_ITEM:
 			finished_prompt_item.emit(payload["to_use"])
+		ClientMessage.PLAYER_USE_ITEM:
+			server_use_item(dict_to_inst(payload["item"]))
 			
 
 func check_all_human_dead_or_escaped() -> bool:
