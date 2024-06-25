@@ -75,6 +75,16 @@ func tile_to_sector(tile: Vector2i) -> String:
 	return "%c%02d" % [65 + tile.x, tile.y]
 
 
+func get_adjecent_tiles(tile: Vector2i) -> Array[Vector2i]:
+	var top = Vector2i(tile.x, tile.y - 1)
+	var bottom = Vector2i(tile.x, tile.y + 1)
+	var left_top = Vector2i(tile.x - 1, tile.y)
+	var left_bottom = Vector2i(tile.x - 1, tile.y + 1)
+	var right_top = Vector2i(tile.x + 1, tile.y)
+	var right_bottom = Vector2i(tile.x + 1, tile.y + 1)
+	return [tile, top, bottom, left_top, left_bottom, right_top, right_bottom]
+
+
 func is_dangerous_tile(tile: Vector2i) -> bool:
 	return tile in get_used_cells_by_id(BOARD_LAYER, BOARD_SOURCE_ID, Vector2i(1, 0))
 

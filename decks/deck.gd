@@ -35,7 +35,7 @@ class Card:
 		3 Adrenaline - TurnState.MOVING (DONE)
 		3 Sedatives - TurnState.MOVING  (DONE)
 		1 Mutation - Any Time (DONE)
-		1 Teleport - Any Time
+		1 Teleport - Any Time (DONE)
 		2 Spotlight - Any Time
 		1 Sensor - Any Time
 """
