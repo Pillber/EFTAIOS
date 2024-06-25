@@ -288,10 +288,15 @@ func _process(_delta) -> void:
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_END_TURN)
 		Global.TurnState.WAITING:
 			return
-		[Global.TurnState.DEAD, Global.TurnState.ESCAPED, Global.TurnState.DISCONNECTED]:
-			# skip turn if dead, escaped, or disconnected
+		Global.TurnState.DEAD:
+			print("player dead")
 			change_turn()
-
+		Global.TurnState.ESCAPED:
+			print("player escaped")
+			change_turn()
+		Global.TurnState.DISCONNECTED:
+			print("player disconnected")
+			change_turn()
 
 func player_check_item(current_player: Player, check_function: Callable, item: ItemResource) -> bool:
 	if check_function.call():
@@ -344,26 +349,6 @@ func mutate_player(current_player: Player) -> void:
 
 func _on_player_use_item(item: ItemResource):
 	client_call.rpc_id(SERVER, ClientMessage.PLAYER_USE_ITEM, {"item": inst_to_dict(item)})
-
-func server_use_item(item: ItemResource) -> void:
-	# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
-	print(item.name)
-	var current_player = players[current_player_turn]
-	current_player.remove_item(item)
-	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(item)})
-	if item.name == "Mutation":
-		mutate_player(current_player)
-	elif item.name == "Teleport":
-		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Teleportation!"})
-		current_player.position = board.zone.human_spawn
-		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
-	elif item.name == "Spotlight":
-		pass
-	elif item.name == "Sensor":
-		pass
-	else:
-		push_error("You can't use this item, silly!")
-
 
 enum ServerMessage {
 	PLAYER_MOVEMENT,
@@ -515,7 +500,23 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 		ClientMessage.PLAYER_PROMPT_ITEM:
 			finished_prompt_item.emit(payload["to_use"])
 		ClientMessage.PLAYER_USE_ITEM:
-			server_use_item(dict_to_inst(payload["item"]))
+			# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
+			var item = dict_to_inst(payload["item"])
+			print(item.name)
+			current_player.remove_item(item)
+			server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(item)})
+			if item.name == "Mutation":
+				mutate_player(current_player)
+			elif item.name == "Teleport":
+				server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Teleportation!"})
+				current_player.position = board.zone.human_spawn
+				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
+			elif item.name == "Spotlight":
+				pass
+			elif item.name == "Sensor":
+				pass
+			else:
+				push_error("You can't use this item, silly!")
 			
 
 func check_all_human_dead_or_escaped() -> bool:
