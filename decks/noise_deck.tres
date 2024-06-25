@@ -74,14 +74,14 @@ item = ExtResource("7_n28ln")
 [sub_resource type="Resource" id="Resource_1porb"]
 script = ExtResource("1_050du")
 type = 2
-count = 0
+count = 10
 discard = false
 item = ExtResource("8_u4jx3")
 
 [sub_resource type="Resource" id="Resource_vyxn7"]
 script = ExtResource("1_050du")
 type = 2
-count = 10
+count = 0
 discard = false
 item = ExtResource("9_2u628")
 

@@ -107,7 +107,6 @@ func remove_item(item: ItemResource) -> void:
 
 
 func _on_use_item(item: ItemResource):
-	print("board using item!")
 	using_item.emit(item)
 
 
@@ -137,14 +136,21 @@ func use_cat(force_current_position: bool) -> Array[Vector2i]:
 	
 	return result
 
+func enable_teleport_item(enable: bool) -> void:
+	for item in $CanvasLayer/UI/ItemList/Items.get_children():
+		if item.resource.name == "Teleport":
+			item.update_useable(enable)
+
 #region Player Actions
 func get_move() -> Vector2i:
 	while true:
 		var selected_tile = await tile_selected
 		if selected_tile in zone.possible_moves:
+			enable_teleport_item(false)
 			confirmation_popup.pop_up("Would you like to move to:", zone.tile_to_sector(selected_tile))
 			if await confirmation_popup.finished:
 				turn_grid.get_node(str(current_turn_number)).set_move(zone.tile_to_sector(selected_tile))
+				enable_teleport_item(true)
 				return selected_tile
 	return Vector2i.ZERO
 

@@ -65,6 +65,9 @@ class Player:
 	func can_sedatives() -> bool:
 		return check_items(false, Item.SEDATIVES_ITEM)
 	
+	func can_mutate() -> bool:
+		return check_items(false, Item.MUTATION_ITEM)
+	
 	func remove_item(item_to_remove: ItemResource):
 		for item in items:
 			if item == item_to_remove:
@@ -272,6 +275,8 @@ func _process(_delta) -> void:
 		Global.TurnState.ATTACKING:
 			if not queried_attack:
 				queried_attack = true
+				if await player_check_item(current_player, current_player.can_mutate, Item.MUTATION_ITEM):
+					mutate_player(current_player)
 				if current_player.can_attack():
 					server_call.rpc_id(current_player.id, ServerMessage.PLAYER_ATTACK)
 				else:
@@ -325,6 +330,18 @@ func update_num_moves(new_num_moves: int, player_position: Vector2i) -> void:
 	board.zone.update_possible_moves(player_position, new_num_moves)
 
 
+func mutate_player(current_player: Player) -> void:
+	server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Mutation!"})
+	current_player.team = Team.ALIEN
+	current_player.num_moves = 2
+	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_TEAM, {"is_alien": true})
+	update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
+	if check_all_human_dead_or_escaped():
+		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"No more humans! Aliens win!"})
+		emit_signal("end_game")
+		return
+
+
 func _on_player_use_item(item: ItemResource):
 	# the only items that should get to this point are: teleport, spotlight, sensor, and mutation.
 	print(item.name)
@@ -332,20 +349,11 @@ func _on_player_use_item(item: ItemResource):
 	current_player.remove_item(item)
 	server_call.rpc_id(current_player.id, ServerMessage.PLAYER_REMOVE_ITEM, {"item": inst_to_dict(item)})
 	if item.name == "Mutation":
-		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Mutation!"})
-		current_player.team = Team.ALIEN
-		current_player.num_moves = 2
-		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_TEAM, {"is_alien": true})
-		update_num_moves.rpc_id(current_player.id, current_player.num_moves, current_player.position)
-		if check_all_human_dead_or_escaped():
-			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message":"No more humans! Aliens win!"})
-			emit_signal("end_game")
-			return
+		mutate_player(current_player)
 	elif item.name == "Teleport":
 		server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Teleportation!"})
 		current_player.position = board.zone.human_spawn
 		server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
-		# PLAYER CAN TELEPORT RIGHT BACK IF THEY USE ITEM WHILE CONFIRMING MOVEMENT
 	elif item.name == "Spotlight":
 		pass
 	elif item.name == "Sensor":
