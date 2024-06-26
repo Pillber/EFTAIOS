@@ -141,6 +141,18 @@ func enable_teleport_item(enable: bool) -> void:
 		if item.resource.name == "Teleport":
 			item.update_useable(enable)
 
+func use_spotlight() -> Array[Vector2i]:
+	var selected_tile
+	while true:
+		confirmation_popup.pop_up("Select a sector to light up. This affects the 6 adjecent sectors.", "", false)
+		await confirmation_popup.finished
+		while true:
+			selected_tile = await tile_selected
+			confirmation_popup.pop_up("Would you like to light up: ", zone.tile_to_sector(selected_tile))
+			if await confirmation_popup.finished:
+				break
+	return zone.get_adjecent_tiles(selected_tile)
+
 #region Player Actions
 func get_move() -> Vector2i:
 	while true:

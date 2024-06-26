@@ -364,6 +364,7 @@ enum ServerMessage {
 	PLAYER_REMOVE_ITEM,
 	PLAYER_PROMPT_ITEM,
 	PLAYER_USE_CAT,
+	PLAYER_USE_SPOTLIGHT,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
 	SERVER_BROADCAST_NEXT_TURN,
@@ -425,6 +426,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[0], "end_state": false})
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[1], "end_state": true})
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_PROMPT_ITEM, {"to_use": null})
+		ServerMessage.PLAYER_USE_SPOTLIGHT:
+			var sectors = await board.use_spotlight()
 
 signal finished_prompt_item(use_item)
 signal end_state()
