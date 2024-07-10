@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cp2ant8eup43x"
-path="res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+uid="uid://dgd7ae88kc67j"
+path="res://.godot/imported/bordered_hexagon_button.svg-a5fb39af89a141ccd7c3208734a6ef41.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icon.svg"
-dest_files=["res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"]
+source_file="res://bordered_hexagon_button.svg"
+dest_files=["res://.godot/imported/bordered_hexagon_button.svg-a5fb39af89a141ccd7c3208734a6ef41.ctex"]
 
 [params]
 
@@ -32,6 +32,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=0.5
+svg/scale=0.4
 editor/scale_with_editor_scale=false
 editor/convert_colors_with_editor_theme=false

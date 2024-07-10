@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 Global="*res://global.gd"
 Decks="*res://decks/deck.gd"
 
+[gui]
+
+theme/custom_font="res://OxaniumExtrabold.ttf"
+
 [input]
 
 left_click={
