@@ -41,15 +41,6 @@ func init_player_list(list) -> void:
 		player_list.add_child(item)
 
 
-func _process(_delta):
-	show_mouse_sector()
-
-
-func show_mouse_sector() -> void:
-	var mouse_pos = zone.get_tile_at_mouse()
-	$CanvasLayer/UI/SelectedSectorPanel/SelectedSectorLabel.text = zone.tile_to_sector(mouse_pos)
-
-
 func _input(event):
 	if event.is_action_pressed("left_click"):
 		tile_selected.emit(zone.get_tile_at_mouse())
@@ -79,17 +70,9 @@ func set_current_turn(turn_number: int) -> void:
 
 
 func show_message(message: String) -> void:	
-	var message_panel = make_message(message)
-	message_container.add_child(message_panel)
-	
-	await get_tree().create_timer(5).timeout
-	
-	message_panel.queue_free()
-
-func make_message(message: String) -> Control:
-	var panel = MESSAGE.instantiate()
-	panel.get_node("Panel/Text").text = message
-	return panel
+	var message_item = MESSAGE.instantiate()
+	message_item.set_message_text(message)
+	message_container.add_child(message_item)
 
 
 func add_item(item: ItemResource) -> void:

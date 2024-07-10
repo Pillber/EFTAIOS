@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cx60ossd3kjop"]
+[gd_scene load_steps=10 format=3 uid="uid://cx60ossd3kjop"]
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
@@ -20,14 +20,6 @@ emission_box_extents = Vector3(2304, 1296, 0)
 gravity = Vector3(0, 0, 0)
 scale_max = 4.0
 scale_curve = SubResource("CurveTexture_86tjx")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g0owm"]
-bg_color = Color(1, 1, 1, 0.741176)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q87op"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 1)
@@ -76,35 +68,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="SelectedSectorPanel" type="Panel" parent="CanvasLayer/UI"]
-custom_minimum_size = Vector2(120, 40)
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -65.0
-offset_right = 20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_g0owm")
-
-[node name="SelectedSectorLabel" type="Label" parent="CanvasLayer/UI/SelectedSectorPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 28
-text = "K09"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="ConfirmationPanel" parent="CanvasLayer/UI" instance=ExtResource("3_abcto")]
 layout_mode = 1
@@ -163,16 +126,20 @@ horizontal_alignment = 1
 layout_mode = 2
 
 [node name="MessageContainer" type="VBoxContainer" parent="CanvasLayer/UI"]
-custom_minimum_size = Vector2(400, 100)
+custom_minimum_size = Vector2(300, 100)
 layout_mode = 1
-anchors_preset = 1
+anchors_preset = -1
 anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
-offset_left = -450.0
-offset_top = 50.0
+anchor_bottom = 1.0
+offset_left = -310.0
+offset_top = -128.0
 offset_right = -50.0
-offset_bottom = 150.0
+offset_bottom = -50.0
 grow_horizontal = 0
+grow_vertical = 0
+alignment = 2
 
 [node name="TurnContainer" type="Control" parent="CanvasLayer/UI"]
 custom_minimum_size = Vector2(500, 150)
