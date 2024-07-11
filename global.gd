@@ -21,10 +21,6 @@ func _ready() -> void:
 	print("ID: ", steam_id)
 	print("Username: ", steam_username)
 
-func _unhandled_input(event):
-	if event.is_action_pressed("ui_cancel"):
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE else Input.MOUSE_MODE_VISIBLE
-
 
 #region Networking
 
@@ -85,3 +81,18 @@ enum TurnState {
 	DISCONNECTED,
 	USING_ITEM,
 }
+
+
+var colors: Dictionary = {
+	'moving': Color.GOLDENROD,
+	'attack': Color.INDIAN_RED,
+	'making_noise': Color.SLATE_GRAY,
+	'ending_turn': Color.WEB_GREEN,
+	'use_item': Color.REBECCA_PURPLE,
+}
+
+func color_to_code(key: String) -> String:
+	return "#" + colors[key].to_html()
+
+func get_color(key: String) -> Color:
+	return colors[key]

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://game_board/confirmation_panel.gd" id="1_gwo3j"]
 [ext_resource type="Texture2D" uid="uid://cp2ant8eup43x" path="res://icon.svg" id="2_j7p1h"]
 [ext_resource type="Texture2D" uid="uid://dw1rddsijyvpe" path="res://message gradient6.svg" id="2_ods56"]
-[ext_resource type="FontFile" uid="uid://dowiibuod1tsc" path="res://OxaniumExtrabold.ttf" id="3_euf0w"]
+[ext_resource type="FontFile" uid="uid://dowiibuod1tsc" path="res://OxaniumExtrabold.ttf" id="3_51q38"]
 [ext_resource type="Texture2D" uid="uid://dv1n5ns74h71r" path="res://confirmation_panel_bar.svg" id="3_idvam"]
 [ext_resource type="Texture2D" uid="uid://0yfjp4ojbl73" path="res://bordered_hexagon.svg" id="4_8k63k"]
 [ext_resource type="Texture2D" uid="uid://dgd7ae88kc67j" path="res://bordered_hexagon_button.svg" id="4_hqvf0"]
@@ -16,6 +16,11 @@ modulate_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d1ms7"]
 bg_color = Color(0.12, 0.12, 0.12, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+anti_aliasing_size = 2.0
 
 [node name="ConfirmationPanel" type="Control"]
 custom_minimum_size = Vector2(300, 150)
@@ -26,47 +31,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gwo3j")
-
-[node name="Panel" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -69.0
-offset_bottom = 69.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="Panel"]
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/CenterContainer"]
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="ConfirmationText" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(150, 20)
-layout_mode = 2
-text = "CONFIRMATION"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Sector" type="Label" parent="Panel/CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "SECTOR"
-horizontal_alignment = 1
-
-[node name="ConfirmButton" type="Button" parent="Panel/CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "Confirm"
-
-[node name="DeclineButton" type="Button" parent="Panel/CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "Decline"
+color = Color(1, 0, 0, 1)
 
 [node name="TransparentBackround" type="Panel" parent="."]
 custom_minimum_size = Vector2(0, 250)
@@ -92,12 +57,11 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_d1ms7")
 
 [node name="ContentSpacer" type="MarginContainer" parent="TransparentBackround/OpaqueBackground"]
 layout_mode = 2
-size_flags_vertical = 8
-theme_override_constants/margin_bottom = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_bottom = 25
 
 [node name="VAlign" type="VBoxContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer"]
 layout_mode = 2
-size_flags_vertical = 8
 theme_override_constants/separation = 25
 alignment = 1
 
@@ -105,24 +69,24 @@ alignment = 1
 custom_minimum_size = Vector2(250, 30)
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 4
-theme_override_fonts/normal_font = ExtResource("3_euf0w")
+theme_override_fonts/normal_font = ExtResource("3_51q38")
 theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
-text = "[center]Move to [color=yellow]K09[/color]?"
+text = "[center]Select any tile to make noise"
+fit_content = true
 scroll_active = false
 
-[node name="ButtonContainer" type="HBoxContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
+[node name="ConfirmDecline" type="HBoxContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
 layout_mode = 2
 theme_override_constants/separation = 50
 alignment = 1
 
-[node name="Confirm" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ButtonContainer"]
+[node name="Confirm" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline"]
 self_modulate = Color(0.211765, 0.729412, 0.211765, 1)
 layout_mode = 2
 texture_normal = ExtResource("4_hqvf0")
 
-[node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ButtonContainer/Confirm"]
+[node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline/Confirm"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -135,17 +99,17 @@ offset_right = 14.0
 offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("3_euf0w")
+theme_override_fonts/font = ExtResource("3_51q38")
 text = "YES"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Deny" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ButtonContainer"]
+[node name="Decline" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline"]
 self_modulate = Color(0.780392, 0.14902, 0.14902, 1)
 layout_mode = 2
 texture_normal = ExtResource("4_hqvf0")
 
-[node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ButtonContainer/Deny"]
+[node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline/Decline"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -158,18 +122,49 @@ offset_right = 20.0
 offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("3_euf0w")
+theme_override_fonts/font = ExtResource("3_51q38")
 text = "NO"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="SingleConfirm" type="CenterContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
+visible = false
+layout_mode = 2
+
+[node name="ConfirmButton" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/SingleConfirm"]
+self_modulate = Color(0.211765, 0.729412, 0.211765, 1)
+layout_mode = 2
+texture_normal = ExtResource("4_hqvf0")
+
+[node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/SingleConfirm/ConfirmButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -8.5
+offset_right = 0.5
+offset_bottom = 8.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Confirm"
+
 [node name="TopBar" type="TextureRect" parent="TransparentBackround"]
 self_modulate = Color(1, 0.85098, 0, 1)
-layout_mode = 2
-offset_left = 331.0
-offset_top = -24.0
-offset_right = 818.0
-offset_bottom = 15.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -243.5
+offset_top = -144.5
+offset_right = 243.5
+offset_bottom = -105.5
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 texture = ExtResource("3_idvam")
@@ -183,7 +178,7 @@ offset_right = 639.0
 offset_bottom = 58.0
 size_flags_horizontal = 4
 size_flags_vertical = 0
-theme_override_constants/margin_top = -50
+theme_override_constants/margin_top = -55
 
 [node name="HexBackground" type="TextureRect" parent="TransparentBackround/IconSpacer"]
 self_modulate = Color(1, 0.85098, 0, 1)
@@ -213,27 +208,20 @@ texture = ExtResource("2_j7p1h")
 
 [node name="BottomBar" type="TextureRect" parent="TransparentBackround"]
 self_modulate = Color(1, 0.85098, 0, 1)
-layout_mode = 2
-offset_left = 333.0
-offset_top = 235.0
-offset_right = 820.0
-offset_bottom = 274.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -243.5
+offset_top = 105.5
+offset_right = 243.5
+offset_bottom = 144.5
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 texture = ExtResource("3_idvam")
 stretch_mode = 2
 flip_v = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="TransparentBackround"]
-custom_minimum_size = Vector2(0, 400)
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -108.0
-offset_bottom = 108.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 30
-alignment = 1
