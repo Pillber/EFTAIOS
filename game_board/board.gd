@@ -10,11 +10,9 @@ const ITEM = preload("res://items/item.tscn")
 @onready var player_list = $CanvasLayer/UI/PlayerList
 @onready var turn_grid = $CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel/TurnGrid
 
-
-
 var zone: Zone = null
 var current_turn_number: int = 1
-var current_turn_state: int = 0
+var current_turn_state: Global.TurnState = Global.TurnState.WAITING
 
 signal tile_selected(tile)
 signal using_item(item)
@@ -54,12 +52,12 @@ func set_player_turn(player_id: int) -> void:
 			player.set_current_player(player.id == player_id)
 
 
-func turn_state_to_string(turn_state: int) -> String:
+func turn_state_to_string(turn_state: Global.TurnState) -> String:
 	const turn_state_strings = ["Waiting", "Moving", "Making Noise", "Attacking", "Ending Turn", "Dead (lol)", "Escaped"]
 	return turn_state_strings[turn_state]
 
 
-func set_player_turn_state(turn_state: int) -> void:
+func set_player_turn_state(turn_state: Global.TurnState) -> void:
 	current_turn_state = turn_state
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
 	for item in $CanvasLayer/UI/ItemList/Items.get_children():
@@ -97,7 +95,7 @@ func _on_use_item(item: ItemResource):
 
 func prompt_item(item: ItemResource):
 	var prompt_text = "Use c(%s, %s) item?" % [item.name, Global.color_to_code('use_item')]
-	confirmation_popup.pop_up(prompt_text, Global.get_color('use_item'))
+	confirmation_popup.pop_up(prompt_text, Global.get_color('use_item'), -1)
 	var use_item = await confirmation_popup.finished
 	return use_item
 
@@ -106,12 +104,12 @@ func use_cat(force_current_position: bool) -> Array[Vector2i]:
 	var first_sector
 	var second_sector
 	if force_current_position:
-		confirmation_popup.pop_up("Position revealed. Pick only one sector.", Global.get_color('use_item'), false)
+		confirmation_popup.pop_up("Position revealed. Pick only one sector.", Global.get_color('use_item'), -1, false)
 		await confirmation_popup.finished
 		first_sector = await make_noise_any_sector()
 		second_sector = zone.player_position
 	else:
-		confirmation_popup.pop_up("Position not revealed. Pick two sectors.", Global.get_color('use_item'), false)
+		confirmation_popup.pop_up("Position not revealed. Pick two sectors.", Global.get_color('use_item'), -1, false)
 		await confirmation_popup.finished
 		first_sector = await make_noise_any_sector()
 		second_sector = await make_noise_any_sector()
@@ -145,7 +143,7 @@ func get_move() -> Vector2i:
 		if selected_tile in zone.possible_moves:
 			enable_teleport_item(false)
 			var confirmation_text = "Move to c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('moving')]
-			confirmation_popup.pop_up(confirmation_text, Global.get_color('moving'))
+			confirmation_popup.pop_up(confirmation_text, Global.get_color('moving'), current_turn_state)
 			if await confirmation_popup.finished:
 				turn_grid.get_node(str(current_turn_number)).set_move(zone.tile_to_sector(selected_tile))
 				enable_teleport_item(true)
@@ -153,14 +151,14 @@ func get_move() -> Vector2i:
 	return Vector2i.ZERO
 
 func make_noise_any_sector() -> Vector2i:
-	confirmation_popup.pop_up("Select any tile to make noise", Global.get_color('making_noise'), false)
+	confirmation_popup.pop_up("Select any tile to make noise", Global.get_color('making_noise'), current_turn_state, false)
 	await confirmation_popup.finished
 	
 	var selected_tile
 	while true:
 		selected_tile = await tile_selected
 		var confirmation_text = "Make noise at c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('making_noise')]
-		confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'))
+		confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state)
 		if await confirmation_popup.finished:
 			break
 	
@@ -168,19 +166,19 @@ func make_noise_any_sector() -> Vector2i:
 
 func make_noise_this_sector() -> Vector2i:
 	var confirmation_text = "Making noise at c(%s, %s)" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('making_noise')]
-	confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), false)
+	confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state, false)
 	await confirmation_popup.finished
 	return zone.player_position
 
 func attack() -> bool:
 	var confirmation_text = "Attack at c(%s, %s)?" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('attack')]
-	confirmation_popup.pop_up(confirmation_text, Global.get_color('attack'))
+	confirmation_popup.pop_up(confirmation_text, Global.get_color('attack'), current_turn_state)
 	var should_attack = await confirmation_popup.finished
 	if should_attack:
 		turn_grid.get_node(str(current_turn_number)).set_attacked()
 	return should_attack
 
 func end_turn() -> void:
-	confirmation_popup.pop_up("Ending turn", Global.get_color('ending_turn'), false)
+	confirmation_popup.pop_up("Ending turn", Global.get_color('ending_turn'), current_turn_state, false)
 	await confirmation_popup.finished
 #endregion

@@ -83,7 +83,7 @@ enum TurnState {
 }
 
 
-var colors: Dictionary = {
+const colors: Dictionary = {
 	'moving': Color.GOLDENROD,
 	'attack': Color.INDIAN_RED,
 	'making_noise': Color.SLATE_GRAY,

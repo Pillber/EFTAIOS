@@ -9,4 +9,4 @@ func _ready() -> void:
 
 
 func set_message_text(text: String) -> void:
-	$Text.text = text
+	$Text.text = '[right]'+text
