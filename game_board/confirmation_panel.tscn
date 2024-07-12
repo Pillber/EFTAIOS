@@ -200,6 +200,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 0
 tooltip_text = "Icon!"
 texture = ExtResource("7_ie8w1")
+stretch_mode = 3
 
 [node name="BottomBar" type="TextureRect" parent="TransparentBackround"]
 self_modulate = Color(1, 0.85098, 0, 1)

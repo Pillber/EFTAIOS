@@ -90,6 +90,19 @@ const colors: Dictionary = {
 	'ending_turn': Color.WEB_GREEN,
 	'use_item': Color.REBECCA_PURPLE,
 }
+var text_parse = RegEx.new()
+
+
+func parse_text_to_bbcode(text: String) -> String:
+	text_parse.compile("(?<tag>c)\\((?<text>\\w+), (?<option>#\\w+)\\)")
+	var codes = []
+	for code in text_parse.search_all(text):
+		match code.get_string('tag'):
+			'c':
+				codes.append('[color='+code.get_string('option')+']'+code.get_string('text')+'[/color]')
+	for code in codes:
+		text = text_parse.sub(text, code)
+	return '[center]'+text
 
 func color_to_code(key: String) -> String:
 	return "#" + colors[key].to_html()
