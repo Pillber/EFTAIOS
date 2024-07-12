@@ -72,25 +72,41 @@ grow_vertical = 2
 [node name="ConfirmationPanel" parent="CanvasLayer/UI" instance=ExtResource("3_abcto")]
 layout_mode = 1
 
-[node name="PlayerList" type="VBoxContainer" parent="CanvasLayer/UI"]
-custom_minimum_size = Vector2(200, 200)
+[node name="TopBar" type="Control" parent="CanvasLayer/UI"]
 layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="Align" type="HBoxContainer" parent="CanvasLayer/UI/TopBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
 offset_left = 50.0
 offset_top = 50.0
-offset_right = 250.0
-offset_bottom = 250.0
+offset_right = -50.0
+offset_bottom = 150.0
+grow_horizontal = 2
 
-[node name="TurnPanel" type="PanelContainer" parent="CanvasLayer/UI/PlayerList"]
+[node name="TurnPanel" type="PanelContainer" parent="CanvasLayer/UI/TopBar/Align"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_q87op")
 
-[node name="TurnLabel" type="Label" parent="CanvasLayer/UI/PlayerList/TurnPanel"]
+[node name="TurnLabel" type="Label" parent="CanvasLayer/UI/TopBar/Align/TurnPanel"]
 layout_mode = 2
 text = "TURN NUMBER: 1"
 horizontal_alignment = 1
 
+[node name="PlayerList" type="HBoxContainer" parent="CanvasLayer/UI/TopBar/Align"]
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 100
+alignment = 1
+
 [node name="ItemList" type="VBoxContainer" parent="CanvasLayer/UI"]
+visible = false
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 1
 anchors_preset = -1
@@ -142,6 +158,7 @@ grow_vertical = 0
 alignment = 2
 
 [node name="TurnContainer" type="Control" parent="CanvasLayer/UI"]
+visible = false
 custom_minimum_size = Vector2(500, 150)
 layout_mode = 1
 anchors_preset = 5

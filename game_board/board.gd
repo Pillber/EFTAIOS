@@ -1,13 +1,13 @@
 extends Node2D
 
 const MESSAGE = preload("res://game_board/message.tscn")
-const PLAYER_ITEM = preload("res://game_board/player_item.tscn")
+const PLAYER_ITEM = preload("res://game_board/player_list_item.tscn")
 const TURN_ITEM = preload("res://game_board/turn_item.tscn")
 const ITEM = preload("res://items/item.tscn")
 
 @onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
-@onready var player_list = $CanvasLayer/UI/PlayerList
+@onready var player_list = $CanvasLayer/UI/TopBar/Align/PlayerList
 @onready var turn_grid = $CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel/TurnGrid
 
 var zone: Zone = null
@@ -66,7 +66,7 @@ func set_player_turn_state(turn_state: Global.TurnState) -> void:
 
 func set_current_turn(turn_number: int) -> void:
 	current_turn_number = turn_number
-	$CanvasLayer/UI/PlayerList/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
+	$CanvasLayer/UI/TopBar/Align/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
 
 
 func show_message(message: String) -> void:	

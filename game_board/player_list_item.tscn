@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3 uid="uid://dthch7ivetim8"]
+
+[ext_resource type="Texture2D" uid="uid://cp2ant8eup43x" path="res://icon.svg" id="1_ascdi"]
+[ext_resource type="Script" path="res://game_board/player_list_item.gd" id="1_flynn"]
+[ext_resource type="Texture2D" uid="uid://dgd7ae88kc67j" path="res://bordered_hexagon_button.svg" id="3_wjh8w"]
+
+[node name="PlayerListItem" type="Control"]
+custom_minimum_size = Vector2(100, 75)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 75.0
+offset_bottom = 75.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_flynn")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Align" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="PlayerAvatar" type="TextureRect" parent="Panel/Align"]
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_ascdi")
+stretch_mode = 2
+
+[node name="PlayerName" type="Label" parent="Panel/Align"]
+layout_mode = 2
+text = "Name"
+horizontal_alignment = 1
+
+[node name="CurrentTurn" type="TextureRect" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -10.5
+offset_top = -15.0
+offset_right = 10.5
+offset_bottom = 4.0
+grow_horizontal = 2
+texture = ExtResource("3_wjh8w")
+expand_mode = 1
