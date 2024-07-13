@@ -44,12 +44,19 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_31whc")
 
 [node name="OpaqueBackground" type="PanelContainer" parent="TransparentBackround"]
-custom_minimum_size = Vector2(300, 200)
-layout_mode = 2
-offset_left = 426.0
-offset_top = -6.0
-offset_right = 726.0
-offset_bottom = 256.0
+custom_minimum_size = Vector2(400, 150)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -111.0
+offset_right = 200.0
+offset_bottom = 111.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_d1ms7")
@@ -67,7 +74,7 @@ alignment = 1
 [node name="Text" type="RichTextLabel" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
 custom_minimum_size = Vector2(250, 30)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_vertical = 3
 theme_override_fonts/normal_font = ExtResource("3_51q38")
 theme_override_font_sizes/normal_font_size = 22
 bbcode_enabled = true
@@ -76,14 +83,16 @@ fit_content = true
 scroll_active = false
 
 [node name="ConfirmDecline" type="HBoxContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
+visible = false
 layout_mode = 2
-theme_override_constants/separation = 50
+theme_override_constants/separation = 100
 alignment = 1
 
 [node name="Confirm" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline"]
 self_modulate = Color(0.211765, 0.729412, 0.211765, 1)
 layout_mode = 2
 texture_normal = ExtResource("4_hqvf0")
+stretch_mode = 3
 
 [node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline/Confirm"]
 layout_mode = 1
@@ -107,6 +116,7 @@ vertical_alignment = 1
 self_modulate = Color(0.780392, 0.14902, 0.14902, 1)
 layout_mode = 2
 texture_normal = ExtResource("4_hqvf0")
+stretch_mode = 3
 
 [node name="Label" type="Label" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/ConfirmDecline/Decline"]
 layout_mode = 1
@@ -127,7 +137,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SingleConfirm" type="CenterContainer" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign"]
-visible = false
 layout_mode = 2
 
 [node name="ConfirmButton" type="TextureButton" parent="TransparentBackround/OpaqueBackground/ContentSpacer/VAlign/SingleConfirm"]
@@ -159,9 +168,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -243.5
-offset_top = -144.5
+offset_top = -125.0
 offset_right = 243.5
-offset_bottom = -105.5
+offset_bottom = -86.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
@@ -175,15 +184,15 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -63.0
-offset_top = -75.0
-offset_right = 63.0
-offset_bottom = 39.0
+offset_left = -50.0
+offset_top = -45.0
+offset_right = 76.0
+offset_bottom = 69.0
 grow_horizontal = 2
+scale = Vector2(0.8, 0.8)
 size_flags_horizontal = 4
 size_flags_vertical = 4
 texture = ExtResource("4_8k63k")
-stretch_mode = 3
 
 [node name="Icon" type="TextureRect" parent="TransparentBackround/HexBackground"]
 layout_mode = 1
@@ -211,9 +220,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -243.5
-offset_top = 105.5
+offset_top = 86.0
 offset_right = 243.5
-offset_bottom = 144.5
+offset_bottom = 125.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4

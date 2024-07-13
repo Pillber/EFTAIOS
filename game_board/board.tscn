@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://cx60ossd3kjop"]
+[gd_scene load_steps=11 format=3 uid="uid://cx60ossd3kjop"]
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
 [ext_resource type="Script" path="res://decks/deck.gd" id="2_qbatp"]
 [ext_resource type="PackedScene" uid="uid://bcwq1l1rtg0rx" path="res://game_board/confirmation_panel.tscn" id="3_abcto"]
+[ext_resource type="PackedScene" uid="uid://cvcdxs4emhrld" path="res://game_board/turn_and_players.tscn" id="5_2aouh"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]
@@ -70,40 +71,20 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ConfirmationPanel" parent="CanvasLayer/UI" instance=ExtResource("3_abcto")]
+visible = false
 layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -49.0
+offset_right = 150.0
+offset_bottom = 101.0
 
-[node name="TopBar" type="Control" parent="CanvasLayer/UI"]
+[node name="TurnAndPlayers" parent="CanvasLayer/UI" instance=ExtResource("5_2aouh")]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-grow_horizontal = 2
-
-[node name="Align" type="HBoxContainer" parent="CanvasLayer/UI/TopBar"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 50.0
-offset_top = 50.0
-offset_right = -50.0
-offset_bottom = 150.0
-grow_horizontal = 2
-
-[node name="TurnPanel" type="PanelContainer" parent="CanvasLayer/UI/TopBar/Align"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_q87op")
-
-[node name="TurnLabel" type="Label" parent="CanvasLayer/UI/TopBar/Align/TurnPanel"]
-layout_mode = 2
-text = "TURN NUMBER: 1"
-horizontal_alignment = 1
-
-[node name="PlayerList" type="HBoxContainer" parent="CanvasLayer/UI/TopBar/Align"]
-custom_minimum_size = Vector2(200, 100)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 100
-alignment = 1
 
 [node name="ItemList" type="VBoxContainer" parent="CanvasLayer/UI"]
 visible = false

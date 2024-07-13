@@ -1,13 +1,12 @@
 extends Node2D
 
 const MESSAGE = preload("res://game_board/message.tscn")
-const PLAYER_ITEM = preload("res://game_board/player_list_item.tscn")
 const TURN_ITEM = preload("res://game_board/turn_item.tscn")
 const ITEM = preload("res://items/item.tscn")
 
 @onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
-@onready var player_list = $CanvasLayer/UI/TopBar/Align/PlayerList
+@onready var turn_and_players = $CanvasLayer/UI/TurnAndPlayers
 @onready var turn_grid = $CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel/TurnGrid
 
 var zone: Zone = null
@@ -21,6 +20,9 @@ func _ready() -> void:
 	$Camera2D/Stars.show()
 	init_turn_grid()
 
+func _input(event):
+	if event.is_action_pressed("left_click"):
+		tile_selected.emit(zone.get_tile_at_mouse())
 
 func init_turn_grid() -> void:
 	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.pressed.connect(func(): turn_grid.visible = not turn_grid.visible)
@@ -32,41 +34,22 @@ func init_turn_grid() -> void:
 		turn_grid.add_child(turn)
 
 
-func init_player_list(list) -> void:
-	for player in list:
-		var item = PLAYER_ITEM.instantiate()
-		item.set_id(player)
-		item.set_player_name(Global.get_username(player))
-		
-		player_list.add_child(item)
-
-
-func _input(event):
-	if event.is_action_pressed("left_click"):
-		tile_selected.emit(zone.get_tile_at_mouse())
-
+func init_player_list(player_list) -> void:
+	turn_and_players.init_players(player_list)
 
 func set_player_turn(player_id: int) -> void:
-	for player in player_list.get_children():
-		if player.has_method("set_current_player"):
-			player.set_current_player(player.id == player_id)
-
-
-func turn_state_to_string(turn_state: Global.TurnState) -> String:
-	const turn_state_strings = ["Waiting", "Moving", "Making Noise", "Attacking", "Ending Turn", "Dead (lol)", "Escaped"]
-	return turn_state_strings[turn_state]
-
+	turn_and_players.set_current_turn(player_id)
 
 func set_player_turn_state(turn_state: Global.TurnState) -> void:
 	current_turn_state = turn_state
-	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.text = "Current State: " + turn_state_to_string(turn_state)
+	turn_and_players.set_turn_state(turn_state)
 	for item in $CanvasLayer/UI/ItemList/Items.get_children():
 		item.update_useable(Global.TurnState.WAITING if zone.is_alien else turn_state)
 
 
 func set_current_turn(turn_number: int) -> void:
 	current_turn_number = turn_number
-	$CanvasLayer/UI/TopBar/Align/TurnPanel/TurnLabel.text = "Current Turn: " + str(turn_number)
+	turn_and_players.set_turn_number(turn_number)
 
 
 func show_message(message: String) -> void:	
