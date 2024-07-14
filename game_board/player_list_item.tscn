@@ -1,9 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://dthch7ivetim8"]
+[gd_scene load_steps=7 format=3 uid="uid://dthch7ivetim8"]
 
 [ext_resource type="Texture2D" uid="uid://cp2ant8eup43x" path="res://icon.svg" id="1_ascdi"]
 [ext_resource type="Script" path="res://game_board/player_list_item.gd" id="1_flynn"]
 [ext_resource type="Shader" path="res://game_board/player_list_item.gdshader" id="2_nk4wa"]
 [ext_resource type="Texture2D" uid="uid://dgd7ae88kc67j" path="res://bordered_hexagon_button.svg" id="3_wjh8w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cgyxa"]
+bg_color = Color(0.180392, 0.180392, 0.180392, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+anti_aliasing_size = 4.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5auld"]
 shader = ExtResource("2_nk4wa")
@@ -26,6 +34,7 @@ anchor_bottom = 1.0
 offset_bottom = 5.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cgyxa")
 
 [node name="Align" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
@@ -52,10 +61,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -5.0
-offset_top = -9.0
-offset_right = 7.0
-offset_bottom = 8.0
+offset_left = -4.0
+offset_top = -14.0
+offset_right = 8.0
+offset_bottom = 3.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)

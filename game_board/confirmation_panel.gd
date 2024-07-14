@@ -54,7 +54,7 @@ func pop_up(confirmation_text: String, color: Color, game_state: Global.TurnStat
 	set_icon(game_state)
 	confirm_decline() if show_decline else confirm()
 	text_box.clear()
-	text_box.append_text(Global.parse_text_to_bbcode(confirmation_text))
+	text_box.append_text('[center]'+Global.parse_text_to_bbcode(confirmation_text))
 	# wait a frame to make sure the player doesn't select something and immediatly hit either confirm or decline
 	await get_tree().process_frame
 	show()

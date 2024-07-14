@@ -134,8 +134,8 @@ func setup_player(num_moves: int, spawn: Vector2i, is_alien: bool) -> void:
 	board.zone.set_player_position(spawn)
 
 @rpc("reliable", "call_local")
-func init_player_list(list) -> void:
-	board.init_player_list(list)
+func init_player_list(player_id_list) -> void:
+	board.init_player_list(player_id_list)
 
 func _on_end_game() -> void:
 	set_process(false)

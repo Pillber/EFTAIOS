@@ -34,8 +34,8 @@ func init_turn_grid() -> void:
 		turn_grid.add_child(turn)
 
 
-func init_player_list(player_list) -> void:
-	turn_and_players.init_players(player_list)
+func init_player_list(player_id_list) -> void:
+	turn_and_players.init_players(player_id_list, zone.is_alien)
 
 func set_player_turn(player_id: int) -> void:
 	turn_and_players.set_current_turn(player_id)

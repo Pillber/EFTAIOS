@@ -24,7 +24,6 @@ func _ready() -> void:
 
 #region Networking
 
-
 func add_self_to_players() -> void:
 	players[multiplayer.get_unique_id()] = {
 			"steam_id" : steam_id,
@@ -65,7 +64,6 @@ func _on_connected_to_server() -> void:
 	# this player connected to server
 	print("Connected to server!")
 
-
 func get_username(player_id: int) -> String:
 	return players[player_id]["username"]
 #endregion
@@ -102,7 +100,7 @@ func parse_text_to_bbcode(text: String) -> String:
 				codes.append('[color='+code.get_string('option')+']'+code.get_string('text')+'[/color]')
 	for code in codes:
 		text = text_parse.sub(text, code)
-	return '[center]'+text
+	return text
 
 func color_to_code(key: String) -> String:
 	return "#" + colors[key].to_html()

@@ -6,18 +6,25 @@ const turn_state_strings = ["Waiting", "Moving", "Making Noise", "Attacking", "E
 @onready var player_list_left = $Align/PlayerListLeft
 @onready var player_list_right = $Align/PlayerListRight
 
-@onready var turn_number = $Align/HexBackground/VAlign/TurnNumber
-@onready var turn_state = $Align/HexBackground/VAlign/TurnState
+@onready var turn_number = $Align/HexButton/VAlign/TurnNumber
+@onready var turn_state = $Align/HexButton/VAlign/TurnState
 
 var players: Array = []
 
+func _ready() -> void:
+	$Align/HexButton.pressed.connect(_on_turn_pressed)
 
-func init_players(player_list) -> void:
+
+func init_players(player_id_list, is_self_alien: bool) -> void:
 	var index = 0
-	for player in player_list:
+	for player_id in player_id_list:
 		var item = PLAYER_LIST_ITEM.instantiate()
-		item.set_id(player)
-		item.set_player_name(Global.get_username(player))
+		item.set_id(player_id)
+		item.set_player_name(Global.get_username(player_id))
+		if player_id == multiplayer.get_unique_id():
+			item.set_team(item.Team.ALIEN if is_self_alien else item.Team.HUMAN)
+			item.set_team_lock()
+			
 		
 		players.append(item)
 		
@@ -33,3 +40,6 @@ func set_turn_state(state: Global.TurnState) -> void:
 
 func set_turn_number(number: int) -> void:
 	turn_number.text = str(number)
+
+func _on_turn_pressed() -> void:
+	print("open the turn list real quick I guess")
