@@ -7,7 +7,8 @@ const ITEM = preload("res://items/item.tscn")
 @onready var confirmation_popup = $CanvasLayer/UI/ConfirmationPanel
 @onready var message_container = $CanvasLayer/UI/MessageContainer
 @onready var turn_and_players = $CanvasLayer/UI/TurnAndPlayers
-@onready var turn_grid = $CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel/TurnGrid
+@onready var movement_record = $CanvasLayer/UI/MovementRecord
+@onready var camera = $Camera
 
 var zone: Zone = null
 var current_turn_number: int = 1
@@ -17,22 +18,21 @@ signal tile_selected(tile)
 signal using_item(item)
 
 func _ready() -> void:
-	$Camera2D/Stars.show()
-	init_turn_grid()
+	$Camera/Stars.show()
+	turn_and_players.open_movement_record.connect(_on_open_movement_record)
+	movement_record.close_movement_record.connect(_on_close_movement_record)
 
 func _input(event):
 	if event.is_action_pressed("left_click"):
 		tile_selected.emit(zone.get_tile_at_mouse())
 
-func init_turn_grid() -> void:
-	$CanvasLayer/UI/TurnContainer/VBoxContainer/TurnStateButton.pressed.connect(func(): turn_grid.visible = not turn_grid.visible)
-	
-	for i in range(1, 41):
-		var turn = TURN_ITEM.instantiate()
-		turn.name = str(i)
-		turn.set_turn_number(i)
-		turn_grid.add_child(turn)
+func _on_open_movement_record() -> void:
+	camera.scroll_locked = true
+	movement_record.show()
 
+func _on_close_movement_record() -> void:
+	camera.scroll_locked = false
+	movement_record.hide()
 
 func init_player_list(player_id_list) -> void:
 	turn_and_players.init_players(player_id_list, zone.is_alien)
@@ -50,6 +50,7 @@ func set_player_turn_state(turn_state: Global.TurnState) -> void:
 func set_current_turn(turn_number: int) -> void:
 	current_turn_number = turn_number
 	turn_and_players.set_turn_number(turn_number)
+	movement_record.add_turn(turn_number)
 
 
 func show_message(message: String) -> void:	
@@ -124,11 +125,12 @@ func get_move() -> Vector2i:
 	while true:
 		var selected_tile = await tile_selected
 		if selected_tile in zone.possible_moves:
+			var sector = zone.tile_to_sector(selected_tile)
 			enable_teleport_item(false)
-			var confirmation_text = "Move to c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('moving')]
+			var confirmation_text = "Move to c(%s, %s)?" % [sector, Global.color_to_code('moving')]
 			confirmation_popup.pop_up(confirmation_text, Global.get_color('moving'), current_turn_state)
 			if await confirmation_popup.finished:
-				turn_grid.get_node(str(current_turn_number)).set_move(zone.tile_to_sector(selected_tile))
+				movement_record.set_turn_sector(current_turn_number, sector)
 				enable_teleport_item(true)
 				return selected_tile
 	return Vector2i.ZERO
@@ -158,7 +160,8 @@ func attack() -> bool:
 	confirmation_popup.pop_up(confirmation_text, Global.get_color('attack'), current_turn_state)
 	var should_attack = await confirmation_popup.finished
 	if should_attack:
-		turn_grid.get_node(str(current_turn_number)).set_attacked()
+		movement_record.set_turn_attack(current_turn_number)
+		pass
 	return should_attack
 
 func end_turn() -> void:

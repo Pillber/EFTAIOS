@@ -11,6 +11,8 @@ const turn_state_strings = ["Waiting", "Moving", "Making Noise", "Attacking", "E
 
 var players: Array = []
 
+signal open_movement_record
+
 func _ready() -> void:
 	$Align/HexButton.pressed.connect(_on_turn_pressed)
 
@@ -43,3 +45,4 @@ func set_turn_number(number: int) -> void:
 
 func _on_turn_pressed() -> void:
 	print("open the turn list real quick I guess")
+	open_movement_record.emit()

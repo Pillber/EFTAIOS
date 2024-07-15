@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://decks/deck.gd" id="2_qbatp"]
 [ext_resource type="PackedScene" uid="uid://bcwq1l1rtg0rx" path="res://game_board/confirmation_panel.tscn" id="3_abcto"]
 [ext_resource type="PackedScene" uid="uid://cvcdxs4emhrld" path="res://game_board/turn_and_players.tscn" id="5_2aouh"]
+[ext_resource type="PackedScene" uid="uid://b73gu8naepxt1" path="res://movement_record.tscn" id="6_3oj1m"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]
@@ -29,9 +30,6 @@ border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gvere"]
-bg_color = Color(0.294118, 0.294118, 0.294118, 0.74902)
-
 [node name="Board" type="Node2D"]
 script = ExtResource("1_rfakm")
 
@@ -47,11 +45,11 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.028, 0.028, 0.1, 1)
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="."]
 position = Vector2(703, 625)
 script = ExtResource("2_6gcrs")
 
-[node name="Stars" type="GPUParticles2D" parent="Camera2D"]
+[node name="Stars" type="GPUParticles2D" parent="Camera"]
 visible = false
 amount = 1000
 process_material = SubResource("ParticleProcessMaterial_eh7vn")
@@ -87,7 +85,6 @@ offset_bottom = 101.0
 layout_mode = 1
 
 [node name="ItemList" type="VBoxContainer" parent="CanvasLayer/UI"]
-visible = false
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 1
 anchors_preset = -1
@@ -138,37 +135,5 @@ grow_horizontal = 0
 grow_vertical = 0
 alignment = 2
 
-[node name="TurnContainer" type="Control" parent="CanvasLayer/UI"]
-visible = false
-custom_minimum_size = Vector2(500, 150)
+[node name="MovementRecord" parent="CanvasLayer/UI" instance=ExtResource("6_3oj1m")]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_top = 60.0
-offset_right = 20.0
-offset_bottom = 40.0
-grow_horizontal = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/TurnContainer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TurnGridPanel" type="PanelContainer" parent="CanvasLayer/UI/TurnContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_gvere")
-
-[node name="TurnGrid" type="GridContainer" parent="CanvasLayer/UI/TurnContainer/VBoxContainer/TurnGridPanel"]
-visible = false
-layout_mode = 2
-columns = 10
-
-[node name="TurnStateButton" type="Button" parent="CanvasLayer/UI/TurnContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Current State: Waiting"

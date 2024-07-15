@@ -8,6 +8,7 @@ var dragging: bool = false
 var mouse_start_pos: Vector2
 var screen_start_position: Vector2
 
+var scroll_locked: bool = false
 
 func _input(event):
 	# set dragging of camera
@@ -24,9 +25,9 @@ func _input(event):
 		position = (mouse_start_pos - event.position) * (1 / zoom.x) + screen_start_position
 	
 	# zoom camera
-	elif event.is_action("zoom_out"):
+	elif not scroll_locked and event.is_action("zoom_out"):
 		set_zoom(get_zoom() - Vector2.ONE * zoom_factor)
-	elif event.is_action("zoom_in"):
+	elif not scroll_locked and event.is_action("zoom_in"):
 		set_zoom(get_zoom() + Vector2.ONE * zoom_factor)
 	
 	# clamp zoom value

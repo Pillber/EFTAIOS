@@ -1,21 +1,69 @@
-[gd_scene load_steps=3 format=3 uid="uid://crai0glpdygy7"]
+[gd_scene load_steps=4 format=3 uid="uid://crai0glpdygy7"]
 
 [ext_resource type="Script" path="res://game_board/turn_item.gd" id="1_i6vow"]
+[ext_resource type="Texture2D" uid="uid://0yfjp4ojbl73" path="res://bordered_hexagon.svg" id="2_wcon4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lbbvi"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 1)
 
 [node name="TurnItem" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 60)
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -25.0
+offset_right = -872.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_lbbvi")
 script = ExtResource("1_i6vow")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="TurnLabel" type="Label" parent="VBoxContainer"]
+[node name="HAlign" type="HBoxContainer" parent="."]
 layout_mode = 2
-text = "Turn 1"
+
+[node name="TurnNumber" type="Label" parent="HAlign"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = " 1 "
 horizontal_alignment = 1
 
-[node name="Move" type="Label" parent="VBoxContainer"]
+[node name="Sector" type="Label" parent="HAlign"]
 layout_mode = 2
-horizontal_alignment = 1
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.854902, 0.647059, 0.12549, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="TurnActions" type="RichTextLabel" parent="HAlign"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+
+[node name="TurnNoise" type="VBoxContainer" parent="HAlign"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="NoiseIcon" type="TextureRect" parent="HAlign/TurnNoise"]
+visible = false
+custom_minimum_size = Vector2(32, 34)
+layout_mode = 2
+texture = ExtResource("2_wcon4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NoiseLabel" type="RichTextLabel" parent="HAlign/TurnNoise"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+text = "[center]Silence"
