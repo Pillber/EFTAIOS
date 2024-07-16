@@ -8,23 +8,26 @@ const ITEM = preload("res://items/item.tscn")
 @onready var message_container = $CanvasLayer/UI/MessageContainer
 @onready var turn_and_players = $CanvasLayer/UI/TurnAndPlayers
 @onready var movement_record = $CanvasLayer/UI/MovementRecord
+@onready var status_bar = $CanvasLayer/UI/StatusBar
 @onready var camera = $Camera
 
 var zone: Zone = null
 var current_turn_number: int = 1
 var current_turn_state: Global.TurnState = Global.TurnState.WAITING
 
-signal tile_selected(tile)
+var interrupted: bool = false
+signal tile_selected(tile, interrupt)
 signal using_item(item)
 
 func _ready() -> void:
 	$Camera/Stars.show()
 	turn_and_players.open_movement_record.connect(_on_open_movement_record)
 	movement_record.close_movement_record.connect(_on_close_movement_record)
+	tile_selected.connect(_on_tile_selected)
 
 func _input(event):
 	if event.is_action_pressed("left_click"):
-		tile_selected.emit(zone.get_tile_at_mouse())
+		tile_selected.emit(zone.get_tile_at_mouse(), interrupted)
 
 func _on_open_movement_record() -> void:
 	camera.scroll_locked = true
@@ -33,6 +36,9 @@ func _on_open_movement_record() -> void:
 func _on_close_movement_record() -> void:
 	camera.scroll_locked = false
 	movement_record.hide()
+
+func _on_tile_selected(tile, interrupt) -> void:
+	status_bar.close()
 
 func init_player_list(player_id_list) -> void:
 	turn_and_players.init_players(player_id_list, zone.is_alien)
@@ -109,21 +115,28 @@ func enable_teleport_item(enable: bool) -> void:
 			item.update_useable(enable)
 
 func use_spotlight() -> Array[Vector2i]:
+	interrupted = true
+	confirmation_popup.hide()
 	var selected_tile
 	while true:
-		confirmation_popup.pop_up("Select a sector to light up. This affects the 6 adjecent sectors.", "", false)
-		await confirmation_popup.finished
-		while true:
-			selected_tile = await tile_selected
-			confirmation_popup.pop_up("Would you like to light up: ", zone.tile_to_sector(selected_tile))
-			if await confirmation_popup.finished:
-				break
+		status_bar.pop_up('Select a tile to light up with its 6 neighbors')
+		var result = await tile_selected
+		selected_tile = result[0]
+		var confirmation_text = "Light up c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('use_item')]
+		confirmation_popup.pop_up(confirmation_text, Global.get_color('use_item'), current_turn_state)
+		if await confirmation_popup.finished:
+			break
+	interrupted = false
 	return zone.get_adjecent_tiles(selected_tile)
 
 #region Player Actions
 func get_move() -> Vector2i:
 	while true:
-		var selected_tile = await tile_selected
+		status_bar.pop_up('Select a tile to move to')
+		var result = await tile_selected
+		if result[1]:
+			continue
+		var selected_tile = result[0]
 		if selected_tile in zone.possible_moves:
 			var sector = zone.tile_to_sector(selected_tile)
 			enable_teleport_item(false)
@@ -136,12 +149,15 @@ func get_move() -> Vector2i:
 	return Vector2i.ZERO
 
 func make_noise_any_sector() -> Vector2i:
-	confirmation_popup.pop_up("Select any tile to make noise", Global.get_color('making_noise'), current_turn_state, false)
-	await confirmation_popup.finished
-	
+	#confirmation_popup.pop_up("Select any tile to make noise", Global.get_color('making_noise'), current_turn_state, false)
+	#await confirmation_popup.finished
 	var selected_tile
 	while true:
-		selected_tile = await tile_selected
+		status_bar.pop_up('Select any tile to make noise there')
+		var result = await tile_selected
+		if result[1]:
+			continue
+		selected_tile = result[0]
 		var confirmation_text = "Make noise at c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('making_noise')]
 		confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state)
 		if await confirmation_popup.finished:
@@ -165,6 +181,9 @@ func attack() -> bool:
 	return should_attack
 
 func end_turn() -> void:
-	confirmation_popup.pop_up("Ending turn", Global.get_color('ending_turn'), current_turn_state, false)
-	await confirmation_popup.finished
+	while true:
+		confirmation_popup.pop_up("Ending turn", Global.get_color('ending_turn'), current_turn_state, false)
+		await confirmation_popup.finished
+		if !interrupted:
+			break
 #endregion

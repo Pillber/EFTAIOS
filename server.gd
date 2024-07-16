@@ -39,6 +39,9 @@ class Player:
 		else: # you are an alien
 			current_state = Global.TurnState.DEAD
 			num_moves = 0
+	
+	func is_spotlight_valid() -> bool:
+		return not current_state in [Global.TurnState.DEAD, Global.TurnState.DISCONNECTED, Global.TurnState.ESCAPED]
 			
 	func check_items(alien_case: bool, item_to_check: ItemResource) -> bool:
 		if team == Team.ALIEN: return alien_case
@@ -377,6 +380,7 @@ enum ClientMessage {
 	PLAYER_END_TURN,
 	PLAYER_PROMPT_ITEM,
 	PLAYER_USE_ITEM,
+	PLAYER_RETURN_TILES,
 }
 
 const SERVER: int = 1
@@ -390,10 +394,10 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_MOVEMENT, {"new_position":selected_tile})
 		ServerMessage.PLAYER_NOISE_THIS_SECTOR:
 			var selected_tile = await board.make_noise_this_sector()
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, end_state:true})
 		ServerMessage.PLAYER_NOISE_ANY_SECTOR:
 			var selected_tile = await board.make_noise_any_sector()
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, end_state:true})
 		ServerMessage.PLAYER_ATTACK:
 			var attack = await board.attack()
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_ATTACK, {"should_attack": attack})
@@ -427,7 +431,8 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position": sectors[1], "end_state": true})
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_PROMPT_ITEM, {"to_use": null})
 		ServerMessage.PLAYER_USE_SPOTLIGHT:
-			var sectors = await board.use_spotlight()
+			var tiles = await board.use_spotlight()
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_TILES, {"tiles": tiles})
 
 signal finished_prompt_item(use_item)
 signal end_state()
@@ -515,12 +520,17 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 				current_player.position = board.zone.human_spawn
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_UPDATE_POSITION, {"new_position": current_player.position})
 			elif item.name == "Spotlight":
-				pass
+				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_USE_SPOTLIGHT)
 			elif item.name == "Sensor":
 				pass
 			else:
 				push_error("You can't use this item, silly!")
-			
+		ClientMessage.PLAYER_RETURN_TILES:
+			var tiles = payload['tiles']
+			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Spotlight at " + board.zone.tile_to_sector(tiles[0]) + "!"})
+			for player in players:
+				if player.is_spotlight_valid() and player.position in tiles:
+					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {'message': 'Player [' + Global.get_username(player.id) + ' is at ' + board.zone.tile_to_sector(player.position)})
 
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:
