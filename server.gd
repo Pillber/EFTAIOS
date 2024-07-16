@@ -530,7 +530,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Spotlight at " + board.zone.tile_to_sector(tiles[0]) + "!"})
 			for player in players:
 				if player.is_spotlight_valid() and player.position in tiles:
-					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {'message': 'Player [' + Global.get_username(player.id) + ' is at ' + board.zone.tile_to_sector(player.position)})
+					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {'message': 'Player [' + Global.get_username(player.id) + '] is at ' + board.zone.tile_to_sector(player.position)})
 
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:

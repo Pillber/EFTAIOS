@@ -140,10 +140,6 @@ grow_horizontal = 0
 grow_vertical = 0
 alignment = 2
 
-[node name="MovementRecord" parent="CanvasLayer/UI" instance=ExtResource("6_3oj1m")]
-visible = false
-layout_mode = 1
-
 [node name="StatusBar" type="Control" parent="CanvasLayer/UI"]
 custom_minimum_size = Vector2(400, 75)
 layout_mode = 1
@@ -201,3 +197,7 @@ texture = ExtResource("8_fai42")
 expand_mode = 1
 stretch_mode = 3
 flip_v = true
+
+[node name="MovementRecord" parent="CanvasLayer/UI" instance=ExtResource("6_3oj1m")]
+visible = false
+layout_mode = 1

@@ -44,5 +44,4 @@ func set_turn_number(number: int) -> void:
 	turn_number.text = str(number)
 
 func _on_turn_pressed() -> void:
-	print("open the turn list real quick I guess")
 	open_movement_record.emit()
