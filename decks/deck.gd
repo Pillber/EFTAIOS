@@ -36,7 +36,7 @@ class Card:
 		3 Sedatives - TurnState.MOVING  (DONE)
 		1 Mutation - Any Time (DONE)
 		1 Teleport - Any Time (DONE)
-		2 Spotlight - Any Time
+		2 Spotlight - Any Time (DONE)
 		1 Sensor - Any Time
 """
 """

@@ -142,7 +142,10 @@ func get_move() -> Vector2i:
 			enable_teleport_item(false)
 			var confirmation_text = "Move to c(%s, %s)?" % [sector, Global.color_to_code('moving')]
 			confirmation_popup.pop_up(confirmation_text, Global.get_color('moving'), current_turn_state)
-			if await confirmation_popup.finished:
+			var confirmed = await confirmation_popup.finished
+			if interrupted:
+				continue
+			if confirmed:
 				movement_record.set_turn_sector(current_turn_number, sector)
 				enable_teleport_item(true)
 				return selected_tile
@@ -160,24 +163,33 @@ func make_noise_any_sector() -> Vector2i:
 		selected_tile = result[0]
 		var confirmation_text = "Make noise at c(%s, %s)?" % [zone.tile_to_sector(selected_tile), Global.color_to_code('making_noise')]
 		confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state)
-		if await confirmation_popup.finished:
+		var confirmed = await confirmation_popup.finished
+		if interrupted:
+			continue
+		if confirmed:
 			break
 	
 	return selected_tile
 
 func make_noise_this_sector() -> Vector2i:
-	var confirmation_text = "Making noise at c(%s, %s)" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('making_noise')]
-	confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state, false)
-	await confirmation_popup.finished
+	while true:
+		var confirmation_text = "Making noise at c(%s, %s)" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('making_noise')]
+		confirmation_popup.pop_up(confirmation_text, Global.get_color('making_noise'), current_turn_state, false)
+		await confirmation_popup.finished
+		if !interrupted:
+			break
 	return zone.player_position
 
 func attack() -> bool:
-	var confirmation_text = "Attack at c(%s, %s)?" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('attack')]
-	confirmation_popup.pop_up(confirmation_text, Global.get_color('attack'), current_turn_state)
-	var should_attack = await confirmation_popup.finished
+	var should_attack
+	while true:
+		var confirmation_text = "Attack at c(%s, %s)?" % [zone.tile_to_sector(zone.player_position), Global.color_to_code('attack')]
+		confirmation_popup.pop_up(confirmation_text, Global.get_color('attack'), current_turn_state)
+		should_attack = await confirmation_popup.finished
+		if !interrupted:
+			break
 	if should_attack:
 		movement_record.set_turn_attack(current_turn_number)
-		pass
 	return should_attack
 
 func end_turn() -> void:

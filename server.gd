@@ -394,10 +394,10 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_MOVEMENT, {"new_position":selected_tile})
 		ServerMessage.PLAYER_NOISE_THIS_SECTOR:
 			var selected_tile = await board.make_noise_this_sector()
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, end_state:true})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, 'end_state':true})
 		ServerMessage.PLAYER_NOISE_ANY_SECTOR:
 			var selected_tile = await board.make_noise_any_sector()
-			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, end_state:true})
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_NOISE, {"noise_position":selected_tile, 'end_state':true})
 		ServerMessage.PLAYER_ATTACK:
 			var attack = await board.attack()
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_ATTACK, {"should_attack": attack})

@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://bcwq1l1rtg0rx"]
 
 [ext_resource type="Script" path="res://game_board/confirmation_panel.gd" id="1_gwo3j"]
-[ext_resource type="Texture2D" uid="uid://dw1rddsijyvpe" path="res://message gradient6.svg" id="2_ods56"]
+[ext_resource type="Texture2D" uid="uid://dw1rddsijyvpe" path="res://confirmation_panel_background.svg" id="2_f4ymy"]
 [ext_resource type="FontFile" uid="uid://dowiibuod1tsc" path="res://OxaniumExtrabold.ttf" id="3_51q38"]
 [ext_resource type="Texture2D" uid="uid://dv1n5ns74h71r" path="res://confirmation_panel_bar.svg" id="3_idvam"]
 [ext_resource type="Texture2D" uid="uid://0yfjp4ojbl73" path="res://bordered_hexagon.svg" id="4_8k63k"]
@@ -11,7 +11,7 @@
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_31whc"]
 content_margin_top = 13.0
 content_margin_bottom = 13.0
-texture = ExtResource("2_ods56")
+texture = ExtResource("2_f4ymy")
 modulate_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d1ms7"]
