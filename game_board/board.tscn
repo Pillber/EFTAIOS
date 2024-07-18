@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cx60ossd3kjop"]
+[gd_scene load_steps=15 format=3 uid="uid://cx60ossd3kjop"]
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b73gu8naepxt1" path="res://movement_record.tscn" id="6_3oj1m"]
 [ext_resource type="Script" path="res://game_board/status_board.gd" id="7_gk4rk"]
 [ext_resource type="Texture2D" uid="uid://dv1n5ns74h71r" path="res://confirmation_panel_bar.svg" id="8_fai42"]
+[ext_resource type="PackedScene" uid="uid://ekjdr0e0hmra" path="res://game_board/item_list.tscn" id="9_8bnr6"]
 
 [sub_resource type="Curve" id="Curve_5h5jw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 1.4, 0.0, 0, 0]
@@ -90,6 +91,7 @@ offset_bottom = 101.0
 layout_mode = 1
 
 [node name="ItemList" type="VBoxContainer" parent="CanvasLayer/UI"]
+visible = false
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 1
 anchors_preset = -1
@@ -200,4 +202,7 @@ flip_v = true
 
 [node name="MovementRecord" parent="CanvasLayer/UI" instance=ExtResource("6_3oj1m")]
 visible = false
+layout_mode = 1
+
+[node name="ItemList2" parent="CanvasLayer/UI" instance=ExtResource("9_8bnr6")]
 layout_mode = 1

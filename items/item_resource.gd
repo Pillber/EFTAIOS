@@ -1,6 +1,13 @@
 extends Resource
 class_name ItemResource
 
+enum UseableStates {
+	MOVING,
+	NOISE,
+	ATTACKING,
+	AT_WILL
+}
+
 @export var name: String
 @export var useable_turn_states: Array[Global.TurnState]
 

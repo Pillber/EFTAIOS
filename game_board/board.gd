@@ -78,7 +78,6 @@ func remove_item(item: ItemResource) -> void:
 			$CanvasLayer/UI/ItemList/Items.remove_child(child)
 			break
 
-
 func _on_use_item(item: ItemResource):
 	using_item.emit(item)
 
