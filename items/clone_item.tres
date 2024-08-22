@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_2rp7r")
 name = "Clone"
-useable_turn_states = Array[int]([])
+useable_turn_state = 2

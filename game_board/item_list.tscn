@@ -1,6 +1,5 @@
-[gd_scene load_steps=4 format=3 uid="uid://ekjdr0e0hmra"]
+[gd_scene load_steps=3 format=3 uid="uid://ekjdr0e0hmra"]
 
-[ext_resource type="PackedScene" uid="uid://ckqktut0x5rsr" path="res://items/item.tscn" id="1_aemvv"]
 [ext_resource type="Script" path="res://game_board/item_list.gd" id="1_ybr4w"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gs6lv"]
@@ -45,6 +44,7 @@ text = "ITEMS"
 layout_mode = 2
 
 [node name="MovingContainer" type="VBoxContainer" parent="Panel/VAlign"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -52,10 +52,8 @@ size_flags_vertical = 3
 layout_mode = 2
 text = "Moving"
 
-[node name="Item" parent="Panel/VAlign/MovingContainer" instance=ExtResource("1_aemvv")]
-layout_mode = 2
-
 [node name="AttackingContainer" type="VBoxContainer" parent="Panel/VAlign"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -65,6 +63,7 @@ text = "Attacking
 "
 
 [node name="NoiseContainer" type="VBoxContainer" parent="Panel/VAlign"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 

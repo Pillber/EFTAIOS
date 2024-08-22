@@ -8,6 +8,7 @@ const ITEM = preload("res://items/item.tscn")
 @onready var message_container = $CanvasLayer/UI/MessageContainer
 @onready var turn_and_players = $CanvasLayer/UI/TurnAndPlayers
 @onready var movement_record = $CanvasLayer/UI/MovementRecord
+@onready var item_list = $CanvasLayer/UI/ItemList
 @onready var status_bar = $CanvasLayer/UI/StatusBar
 @onready var camera = $Camera
 
@@ -24,6 +25,7 @@ func _ready() -> void:
 	turn_and_players.open_movement_record.connect(_on_open_movement_record)
 	movement_record.close_movement_record.connect(_on_close_movement_record)
 	tile_selected.connect(_on_tile_selected)
+	item_list.use_item.connect(_on_use_item)
 
 func _input(event):
 	if event.is_action_pressed("left_click"):
@@ -49,8 +51,7 @@ func set_player_turn(player_id: int) -> void:
 func set_player_turn_state(turn_state: Global.TurnState) -> void:
 	current_turn_state = turn_state
 	turn_and_players.set_turn_state(turn_state)
-	for item in $CanvasLayer/UI/ItemList/Items.get_children():
-		item.update_useable(Global.TurnState.WAITING if zone.is_alien else turn_state)
+	item_list.update_all_items_useable(turn_state, zone.is_alien)
 
 
 func set_current_turn(turn_number: int) -> void:
@@ -64,21 +65,15 @@ func show_message(message: String) -> void:
 	message_item.set_message_text(message)
 	message_container.add_child(message_item)
 
+func add_item(item_resource: ItemResource) -> void:
+	print('adding item')
+	item_list.add_item(item_resource)
 
-func add_item(item: ItemResource) -> void:
-	var new_item = ITEM.instantiate()
-	$CanvasLayer/UI/ItemList/Items.add_child(new_item)
-	new_item.set_resource(item)
-	new_item.use_item.connect(_on_use_item)
-
-
-func remove_item(item: ItemResource) -> void:
-	for child in $CanvasLayer/UI/ItemList/Items.get_children():
-		if child.resource.name == item.name:
-			$CanvasLayer/UI/ItemList/Items.remove_child(child)
-			break
+func remove_item(item_resource: ItemResource) -> void:
+	item_list.remove_item(item_resource)
 
 func _on_use_item(item: ItemResource):
+	print(using_item)
 	using_item.emit(item)
 
 
@@ -109,7 +104,7 @@ func use_cat(force_current_position: bool) -> Array[Vector2i]:
 	return result
 
 func enable_teleport_item(enable: bool) -> void:
-	for item in $CanvasLayer/UI/ItemList/Items.get_children():
+	for item in item_list.get_items(item_list.at_will):
 		if item.resource.name == "Teleport":
 			item.update_useable(enable)
 

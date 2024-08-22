@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_p730g")
 name = "Spotlight"
-useable_turn_states = Array[int]([1, 2, 3, 4])
+useable_turn_state = 3

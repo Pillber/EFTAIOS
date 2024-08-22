@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_jheen")
 name = "Cat"
-useable_turn_states = Array[int]([])
+useable_turn_state = 1

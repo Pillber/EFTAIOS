@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_dq3n1")
 name = "Sedatives"
-useable_turn_states = Array[int]([])
+useable_turn_state = 3

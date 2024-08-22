@@ -38,4 +38,4 @@ func update_useable(turn_state: Global.TurnState) -> void:
 	button.disabled = not resource.is_useable(turn_state)
 
 func _on_use_item() -> void:
-	emit_signal("use_item", resource)
+	use_item.emit(resource)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cx60ossd3kjop"]
+[gd_scene load_steps=14 format=3 uid="uid://cx60ossd3kjop"]
 
 [ext_resource type="Script" path="res://game_board/board.gd" id="1_rfakm"]
 [ext_resource type="Script" path="res://game_board/camera_controls.gd" id="2_6gcrs"]
@@ -25,13 +25,6 @@ emission_box_extents = Vector3(2304, 1296, 0)
 gravity = Vector3(0, 0, 0)
 scale_max = 4.0
 scale_curve = SubResource("CurveTexture_86tjx")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q87op"]
-bg_color = Color(0.168627, 0.168627, 0.168627, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m8mi6"]
 bg_color = Color(0.196078, 0.196078, 0.196078, 1)
@@ -89,42 +82,6 @@ offset_bottom = 101.0
 
 [node name="TurnAndPlayers" parent="CanvasLayer/UI" instance=ExtResource("5_2aouh")]
 layout_mode = 1
-
-[node name="ItemList" type="VBoxContainer" parent="CanvasLayer/UI"]
-visible = false
-custom_minimum_size = Vector2(200, 100)
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 50.0
-offset_top = -40.0
-offset_right = 40.0
-offset_bottom = -50.0
-grow_vertical = 0
-
-[node name="PlayerAbilityPanel" type="PanelContainer" parent="CanvasLayer/UI/ItemList"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_q87op")
-
-[node name="PlayerAbilityLabel" type="Label" parent="CanvasLayer/UI/ItemList/PlayerAbilityPanel"]
-layout_mode = 2
-text = "Player Ability"
-horizontal_alignment = 1
-
-[node name="ItemsPanel" type="PanelContainer" parent="CanvasLayer/UI/ItemList"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_q87op")
-
-[node name="ItemsLabel" type="Label" parent="CanvasLayer/UI/ItemList/ItemsPanel"]
-layout_mode = 2
-text = "Items"
-horizontal_alignment = 1
-
-[node name="Items" type="VBoxContainer" parent="CanvasLayer/UI/ItemList"]
-layout_mode = 2
 
 [node name="MessageContainer" type="VBoxContainer" parent="CanvasLayer/UI"]
 custom_minimum_size = Vector2(300, 100)
@@ -204,5 +161,5 @@ flip_v = true
 visible = false
 layout_mode = 1
 
-[node name="ItemList2" parent="CanvasLayer/UI" instance=ExtResource("9_8bnr6")]
+[node name="ItemList" parent="CanvasLayer/UI" instance=ExtResource("9_8bnr6")]
 layout_mode = 1
