@@ -3,6 +3,8 @@ extends Control
 var radius: float = 100.0
 var num_players: int = -1
 
+signal player_selected(player_id)
+
 func init(players: Array) -> void:
 	num_players = players.size()
 	var index = 0
@@ -21,15 +23,20 @@ func place_item(item: TextureButton, index: int) -> void:
 	var current_segment = segment * index
 	print(current_segment)
 	var offset = Vector2(cos(current_segment), sin(current_segment)) * radius
-	var center_offset = Vector2(-16, -16)
+	var center_offset = item.size / 2
 	print(offset)
-	item.position += offset + center_offset
-	pass
+	item.position += offset - center_offset
+
+
+func get_player() -> int:
+	show()
+	var player_id = await player_selected
+	return player_id
 
 
 func _on_player_selected(player_id):
 	hide()
-	print(player_id)
+	player_selected.emit(player_id)
 
 func _on_avatar_loaded(steam_id: int, avatar_size: int, avatar_texture: ImageTexture) -> void:
 	if avatar_size == Steam.AVATAR_SMALL:

@@ -121,6 +121,10 @@ func use_spotlight() -> Array[Vector2i]:
 	interrupted = false
 	return zone.get_adjecent_tiles(selected_tile)
 
+func use_sensor() -> int:
+	return await turn_and_players.select_player()
+
+
 #region Player Actions
 func get_move() -> Vector2i:
 	while true:

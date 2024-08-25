@@ -49,7 +49,7 @@ func init_players(player_id_list, is_self_alien: bool) -> void:
 		player_list.append(item)
 		index += 1
 	
-	$PlayerPicker.init(player_id_list + player_id_list+ player_id_list+ player_id_list+ player_id_list+ player_id_list+ player_id_list)
+	$PlayerPicker.init(player_id_list)
 
 func set_current_turn(player_id: int) -> void:
 	for player in player_list:
@@ -60,6 +60,10 @@ func set_turn_state(state: Global.TurnState) -> void:
 
 func set_turn_number(number: int) -> void:
 	turn_number.text = str(number)
+
+func select_player() -> int:
+	return await $PlayerPicker.get_player()
+
 
 func _on_turn_pressed() -> void:
 	open_movement_record.emit()

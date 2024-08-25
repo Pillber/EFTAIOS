@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DeckResource" load_steps=24 format=3 uid="uid://ch44gu3wy0ebu"]
+[gd_resource type="Resource" script_class="DeckResource" load_steps=26 format=3 uid="uid://ch44gu3wy0ebu"]
 
 [ext_resource type="Script" path="res://decks/card_resource.gd" id="1_050du"]
 [ext_resource type="Script" path="res://decks/deck_resource.gd" id="1_gjoec"]
@@ -11,6 +11,7 @@
 [ext_resource type="Resource" uid="uid://d3fmoqwbsycs6" path="res://items/mutation_item.tres" id="8_u4jx3"]
 [ext_resource type="Resource" uid="uid://bulmvdjm0osr1" path="res://items/teleport_item.tres" id="9_2u628"]
 [ext_resource type="Resource" uid="uid://os5m55pdj17l" path="res://items/spotlight_item.tres" id="10_wkf2n"]
+[ext_resource type="Resource" uid="uid://c18djfw5itwal" path="res://items/sensor_item.tres" id="11_k4rls"]
 
 [sub_resource type="Resource" id="Resource_7joht"]
 script = ExtResource("1_050du")
@@ -33,66 +34,73 @@ discard = false
 [sub_resource type="Resource" id="Resource_bxra0"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("2_57wc6")
 
 [sub_resource type="Resource" id="Resource_eb6kd"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("3_xouon")
 
 [sub_resource type="Resource" id="Resource_phf2j"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("4_rl1my")
 
 [sub_resource type="Resource" id="Resource_vvtsb"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("5_komdq")
 
 [sub_resource type="Resource" id="Resource_pd8ai"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("6_6h4rr")
 
 [sub_resource type="Resource" id="Resource_7dhnf"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("7_n28ln")
 
 [sub_resource type="Resource" id="Resource_1porb"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("8_u4jx3")
 
 [sub_resource type="Resource" id="Resource_vyxn7"]
 script = ExtResource("1_050du")
 type = 2
-count = 3
+count = 0
 discard = false
 item = ExtResource("9_2u628")
 
 [sub_resource type="Resource" id="Resource_iwl3o"]
 script = ExtResource("1_050du")
 type = 2
-count = 10
+count = 0
 discard = false
 item = ExtResource("10_wkf2n")
 
+[sub_resource type="Resource" id="Resource_ep28y"]
+script = ExtResource("1_050du")
+type = 2
+count = 10
+discard = false
+item = ExtResource("11_k4rls")
+
 [resource]
 script = ExtResource("1_gjoec")
-deck = [SubResource("Resource_7joht"), SubResource("Resource_rxr57"), SubResource("Resource_48wp2"), SubResource("Resource_bxra0"), SubResource("Resource_eb6kd"), SubResource("Resource_phf2j"), SubResource("Resource_vvtsb"), SubResource("Resource_pd8ai"), SubResource("Resource_7dhnf"), SubResource("Resource_1porb"), SubResource("Resource_vyxn7"), SubResource("Resource_iwl3o")]
+deck = [SubResource("Resource_7joht"), SubResource("Resource_rxr57"), SubResource("Resource_48wp2"), SubResource("Resource_bxra0"), SubResource("Resource_eb6kd"), SubResource("Resource_phf2j"), SubResource("Resource_vvtsb"), SubResource("Resource_pd8ai"), SubResource("Resource_7dhnf"), SubResource("Resource_1porb"), SubResource("Resource_vyxn7"), SubResource("Resource_iwl3o"), SubResource("Resource_ep28y")]

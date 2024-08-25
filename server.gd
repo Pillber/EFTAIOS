@@ -368,6 +368,7 @@ enum ServerMessage {
 	PLAYER_PROMPT_ITEM,
 	PLAYER_USE_CAT,
 	PLAYER_USE_SPOTLIGHT,
+	PLAYER_USE_SENSOR,
 	SERVER_BROADCAST_MESSAGE,
 	SERVER_BROADCAST_PLAYER_TURN,
 	SERVER_BROADCAST_NEXT_TURN,
@@ -381,6 +382,7 @@ enum ClientMessage {
 	PLAYER_PROMPT_ITEM,
 	PLAYER_USE_ITEM,
 	PLAYER_RETURN_TILES,
+	PLAYER_RETURN_PLAYER
 }
 
 const SERVER: int = 1
@@ -433,6 +435,9 @@ func server_call(message: ServerMessage, payload: Dictionary = {}) -> void:
 		ServerMessage.PLAYER_USE_SPOTLIGHT:
 			var tiles = await board.use_spotlight()
 			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_TILES, {"tiles": tiles})
+		ServerMessage.PLAYER_USE_SENSOR:
+			var player_id = await board.use_sensor()
+			client_call.rpc_id(SERVER, ClientMessage.PLAYER_RETURN_PLAYER, {'id': player_id})
 
 signal finished_prompt_item(use_item)
 signal end_state()
@@ -522,7 +527,7 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			elif item.name == "Spotlight":
 				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_USE_SPOTLIGHT)
 			elif item.name == "Sensor":
-				pass
+				server_call.rpc_id(current_player.id, ServerMessage.PLAYER_USE_SENSOR)
 			else:
 				push_error("You can't use this item, silly!")
 		ClientMessage.PLAYER_RETURN_TILES:
@@ -531,7 +536,11 @@ func client_call(message: ClientMessage, payload: Dictionary = {}) -> void:
 			for player in players:
 				if player.is_spotlight_valid() and player.position in tiles:
 					server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {'message': 'Player [' + Global.get_username(player.id) + '] is at ' + board.zone.tile_to_sector(player.position)})
-
+		ClientMessage.PLAYER_RETURN_PLAYER:
+			var player_id = payload['id']
+			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(current_player.id) + "] uses Sensor on [" + Global.get_username(player_id) + "]!"})
+			server_call.rpc(ServerMessage.SERVER_BROADCAST_MESSAGE, {"message": "Player [" + Global.get_username(player_id) + "] is at " + board.zone.tile_to_sector(players.filter(func(player): return player.id == player_id)[0].position) + "."})
+			
 func check_all_human_dead_or_escaped() -> bool:
 	for player in players:
 		if player.team == Team.HUMAN:

@@ -68,7 +68,7 @@ func get_tile_at_mouse() -> Vector2i:
 	var mouse_pos = get_global_mouse_position()
 	return local_to_map(mouse_pos)
 
-
+# make static???
 func tile_to_sector(tile: Vector2i) -> String:
 	if tile.x < 0 || tile.y < 0 || tile.x > 25 || tile.y > 99:
 		return ""
