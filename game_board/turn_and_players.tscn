@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cvcdxs4emhrld"]
+[gd_scene load_steps=5 format=3 uid="uid://cvcdxs4emhrld"]
 
 [ext_resource type="Script" path="res://game_board/turn_and_players.gd" id="1_qamer"]
 [ext_resource type="Texture2D" uid="uid://0yfjp4ojbl73" path="res://bordered_hexagon.svg" id="3_o7yxl"]
 [ext_resource type="Texture2D" uid="uid://dv1n5ns74h71r" path="res://confirmation_panel_bar.svg" id="4_65fga"]
+[ext_resource type="Script" path="res://game_board/player_picker.gd" id="4_amf1a"]
 
 [node name="TurnAndPlayers" type="Control"]
 layout_mode = 3
@@ -153,3 +154,39 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 alignment = 1
+
+[node name="PlayerPicker" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 580.0
+offset_top = 324.0
+offset_right = 580.0
+offset_bottom = 324.0
+script = ExtResource("4_amf1a")
+
+[node name="ColorRect" type="ColorRect" parent="PlayerPicker"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureButton" type="TextureButton" parent="PlayerPicker"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2

@@ -66,14 +66,12 @@ func show_message(message: String) -> void:
 	message_container.add_child(message_item)
 
 func add_item(item_resource: ItemResource) -> void:
-	print('adding item')
 	item_list.add_item(item_resource)
 
 func remove_item(item_resource: ItemResource) -> void:
 	item_list.remove_item(item_resource)
 
 func _on_use_item(item: ItemResource):
-	print(using_item)
 	using_item.emit(item)
 
 
